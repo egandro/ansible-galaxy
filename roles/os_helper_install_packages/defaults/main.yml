@@ -1,0 +1,10 @@
+---
+os_helper_install_packages:
+  # - screen
+  # - vim
+  # - htop
+  # - git
+  # - iotop
+  # - jnettop
+  # - tcpdump
+  # - zsh

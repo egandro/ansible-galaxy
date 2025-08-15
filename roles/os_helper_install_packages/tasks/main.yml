@@ -1,0 +1,6 @@
+---
+
+- name: install custom packages
+  ansible.builtin.apt:
+    pkg: "{{ item }}"
+  with_items: "{{ os_helper_install_packages }}"
