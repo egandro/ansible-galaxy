@@ -1,0 +1,20 @@
+---
+- name: test if ssh_key_file exits
+  ansible.builtin.stat:
+    path: "{{ ansible_helper_server_ssh_keys_ssh_key_file }}"
+  register: ssh_key_file_stat
+
+- name: test if ssh_key_file_pub exits
+  ansible.builtin.stat:
+    path: "{{ ansible_helper_server_ssh_keys_ssh_key_file_pub }}"
+  register: ssh_key_file_pub_stat
+
+- name: test if ssh_ansible_vault_file exits
+  ansible.builtin.stat:
+    path: "{{ ansible_helper_server_ssh_keys_ssh_ansible_vault_file }}"
+  register: ssh_ansible_vault_file_stat
+
+- name: test if ssh_secrets_enc_file exits
+  ansible.builtin.stat:
+    path: "{{ ansible_helper_server_ssh_keys_ssh_secrets_enc_file }}"
+  register: ssh_secrets_enc_file_stat

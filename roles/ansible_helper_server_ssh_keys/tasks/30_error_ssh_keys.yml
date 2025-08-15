@@ -1,0 +1,4 @@
+---
+- name: error create or extracting server ssh keys
+  ansible.builtin.fail:
+    msg: "something when wrong - no server keys at {{ ansible_helper_server_ssh_keys_ssh_key_file }} and/or {{ ansible_helper_server_ssh_keys_ssh_key_file_pub }} "

@@ -1,0 +1,42 @@
+---
+
+- name: extract ssh keys from ansible ssh secrets file
+  connection: local
+  become: false
+  shell: |
+    export ANSIBLE_VAULT_PASSWORD_FILE="{{ ansible_helper_server_ssh_keys_ssh_ansible_vault_file }}"
+    SECRETS_ENC_FILE="{{ ansible_helper_server_ssh_keys_ssh_secrets_enc_file }}"
+
+    PLAYBOOK_FILE="$(mktemp /tmp/playbook_yml.XXXXXXXXXX)" || { echo "Failed to create temp file"; exit 1; }
+    chmod 600 "${PLAYBOOK_FILE}"
+    #delete on exit
+    trap 'rm -rf -- "${PLAYBOOK_FILE}"' EXIT
+
+    CURRENT_PATH=$(pwd)
+
+    cat <<EOF > "${PLAYBOOK_FILE}"
+    ---
+
+    - name: extract ssh keys
+      hosts: localhost
+      connection: local
+      become: false
+
+      tasks:
+        - shell: |
+            # preserve path
+            cd "${CURRENT_PATH}"
+            touch "{{ ansible_helper_server_ssh_keys_ssh_key_file }}"
+            chmod 600 "{{ ansible_helper_server_ssh_keys_ssh_key_file }}"
+            echo {% raw %}{{ server_ssh_key }}{% endraw %} | base64 -d > "{{ ansible_helper_server_ssh_keys_ssh_key_file }}"
+
+            touch "{{ ansible_helper_server_ssh_keys_ssh_key_file_pub }}"
+            chmod 600 "{{ ansible_helper_server_ssh_keys_ssh_key_file_pub }}"
+            echo {% raw %}{{ server_ssh_key_pub }}{% endraw %} | base64 -d > "{{ ansible_helper_server_ssh_keys_ssh_key_file_pub }}"
+          args:
+            executable: /bin/bash
+    EOF
+
+    ansible-playbook "${PLAYBOOK_FILE}" -e @"${SECRETS_ENC_FILE}"
+  args:
+    executable: /bin/bash

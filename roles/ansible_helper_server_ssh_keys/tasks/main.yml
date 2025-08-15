@@ -1,0 +1,21 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_discover.yml
+
+- ansible.builtin.include_tasks: 01_error_no_ansible_vault_password_file.yml
+  when: not ssh_ansible_vault_file_stat.stat.exists
+
+- ansible.builtin.include_tasks: 02_create_new_keys.yml
+  when: not ssh_key_file_stat.stat.exists and not ssh_key_file_pub_stat.stat.exists and not ssh_secrets_enc_file_stat.stat.exists
+
+- ansible.builtin.include_tasks: 03_store_keys_as_secret.yml
+  when: not ssh_secrets_enc_file_stat.stat.exists
+
+- ansible.builtin.include_tasks: 20_extract_ssh_keys_from_enc.yml
+  when: ssh_secrets_enc_file_stat.stat.exists and not (ssh_key_file_stat.stat.exists or ssh_key_file_pub_stat.stat.exists)
+
+- ansible.builtin.include_tasks: 00_discover.yml
+
+- ansible.builtin.include_tasks: 30_error_ssh_keys.yml
+  when: not (ssh_key_file_stat.stat.exists or ssh_key_file_pub_stat.stat.exists)

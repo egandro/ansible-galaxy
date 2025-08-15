@@ -1,0 +1,14 @@
+---
+
+- ansible.builtin.debug:
+    msg: "Create new keys"
+
+- name: create new ssh key pair
+  connection: local
+  become: false
+  shell: |
+    KEY_NAME="server key - created at - $(date)"
+    KEY_FILE="{{ ansible_helper_server_ssh_keys_ssh_key_file }}"
+    ssh-keygen -f "${KEY_FILE}" -q -N "" -C "${KEY_NAME}" -t rsa -b 4096
+  args:
+    executable: /bin/bash
