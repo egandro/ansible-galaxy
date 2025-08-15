@@ -1,0 +1,38 @@
+---
+# https://gist.github.com/zoilomora/f862f76335f5f53644a1b8e55fe98320
+# https://stackoverflow.com/questions/33019093/how-do-detect-that-cloud-init-completed-initialization
+# https://www.reddit.com/r/vmware/comments/syv6ud/vm_guest_issues_with_cloudinit_resetting_static/
+# https://cloudinit.readthedocs.io/en/latest/reference/network-config.html
+# https://stackoverflow.com/questions/49249375/how-to-disable-cloud-init-networking
+
+# apt-get install ifupdown
+
+- name: remove cloud init
+  shell: |
+    # cloud-init dhclient-hook down eth0 || true
+    # touch /etc/cloud/cloud-init.disabled || true
+    # dpkg-reconfigure cloud-init || true
+    # rm -rf /etc/network/if-pre-up.d
+    # rm -rf /etc/network/if-up.d
+    if [ -d "/etc/cloud/" ]; then
+      # only remove this if we have a cloud image based VM
+      rm -rf /etc/network/if-pre-up.d
+      rm -rf /etc/network/if-up.d
+    fi
+    rm -rf /run/cloud-init
+    rm -rf /etc/cloud/
+    rm -rf /var/lib/cloud/
+    rm -rf /etc/netplan/50-cloud-init.yaml
+    rm -rf /var/log/cloud-init.log
+    rm -rf /var/log/cloud-init-output.log
+    apt-get purge -y cloud-init || true
+    apt-get purge -y cloud-utils || true
+    apt-get purge -y grub-cloud-amd64 || true
+    apt autoremove -y
+  args:
+    executable: /bin/bash
+
+- name: install ifupdown
+  ansible.builtin.package:
+    name: ifupdown
+    state: present

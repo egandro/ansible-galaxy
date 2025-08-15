@@ -1,0 +1,32 @@
+---
+- name: read public ssh key
+  connection: local
+  become: false
+  shell: |
+    cat {{ ansible_helper_ssh_key_file_pub }}
+  args:
+    executable: /bin/bash
+  register: id_rsa_pub
+
+- name: add authorized_key for '{{ ansible_helper_ssh_key_for_user }}' user
+  ansible.posix.authorized_key:
+    user: "{{ ansible_helper_ssh_key_for_user }}"
+    key: "{{ id_rsa_pub.stdout }}"
+    state: present
+
+- name: add public ssh key to "{{ ansible_helper_ssh_key_for_user }}"
+  shell: |
+    if [ "{{ ansible_helper_ssh_key_for_user }}" = "root" ]; then
+        HOME_DIR=/root
+    else
+        HOME_DIR=/home/"{{ ansible_helper_ssh_key_for_user }}"
+    fi
+    mkdir -p "${HOME_DIR}"/.ssh
+    chmod 700 "${HOME_DIR}"/.ssh
+    chown "{{ ansible_helper_ssh_key_for_user }}":"{{ ansible_helper_ssh_key_for_user }}" "${HOME_DIR}"/.ssh
+
+    echo "{{ id_rsa_pub.stdout }}" > "${HOME_DIR}"/.ssh/id_rsa.pub
+    chown "{{ ansible_helper_ssh_key_for_user }}":"{{ ansible_helper_ssh_key_for_user }}" "${HOME_DIR}"/.ssh/id_rsa.pub
+    chmod 600 "${HOME_DIR}"/.ssh/id_rsa.pub
+  args:
+    executable: /bin/bash

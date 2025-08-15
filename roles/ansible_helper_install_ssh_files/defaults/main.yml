@@ -1,0 +1,7 @@
+---
+# default is the ansible user
+ansible_helper_ssh_key_for_user: "{{ ansible_user }}"
+
+#### use from homedir
+ansible_helper_ssh_key_file: ~/.ssh/id_rsa
+ansible_helper_ssh_key_file_pub: ~/.ssh/id_rsa.pub

@@ -1,0 +1,11 @@
+---
+
+- name: installing hosts template
+  ansible.builtin.template:
+    src:  templates/hosts
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+

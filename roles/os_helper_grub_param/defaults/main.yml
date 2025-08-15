@@ -1,0 +1,2 @@
+---
+#os_helper_grub_param_string: 'vga=0x317'

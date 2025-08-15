@@ -1,0 +1,5 @@
+---
+# hetzner_robot_install_ssh_key:
+#   admin_user: '#123456789+abcde' # send via mail after generating the admin pw
+#   admin_pw: 'very secret' # create with pwgen 32
+#   ssh_key_file_pub: ' ~/.ssh/id_rsa.pub'

@@ -1,0 +1,47 @@
+---
+# fuck this !!!
+# - name: reboot (default)
+#   ansible.builtin.reboot:
+#     reboot_timeout: 3600
+#   when: not os_helper_reboot_force
+
+# https://www.middlewareinventory.com/blog/ansible_wait_for_reboot_to_complete/
+
+- name: Reboot the server
+  tags: reboot
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+  when: not os_helper_reboot_force
+
+- name: reboot (force)
+  shell: |
+    "sleep 5 && reboot -f"
+  args:
+    executable: /bin/bash
+  async: 1
+  poll: 0
+  when: os_helper_reboot_force
+
+- name: pause for 10 seconds (force)
+  ansible.builtin.pause:
+    seconds: 10
+  when: os_helper_reboot_force
+
+- name: wait for ssh to become available again
+  connection: local
+  become: false
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 10
+
+- name: pause for 10 seconds (force)
+  ansible.builtin.pause:
+    seconds: 10
+  when: os_helper_reboot_force
+# - name: Check the Uptime of the servers
+#   shell: "uptime"
+#   register: Uptime
+
+# - debug: var=Uptime

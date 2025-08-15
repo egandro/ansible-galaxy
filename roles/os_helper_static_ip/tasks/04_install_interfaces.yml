@@ -1,0 +1,35 @@
+---
+- name: setting device name default
+  set_fact:
+    effective_device_name: "{{ ansible_default_ipv4.interface }}"
+  when: os_helper_device is undefined
+
+- name: setting custom device name
+  set_fact:
+    effective_device_name: "{{ os_helper_device }}"
+  when: os_helper_device is defined
+
+- name: setting device6 name default
+  set_fact:
+    effective_device6_name: "{{ ansible_default_ipv6.interface }}"
+  when: os_helper_ip6 is defined and os_helper_device is undefined
+
+- name: setting custom device6 name
+  set_fact:
+    effective_device6_name: "{{ os_helper_device }}"
+  when: os_helper_ip6 is defined and os_helper_device is defined
+
+- name: installing interfaces template
+  ansible.builtin.template:
+    src: templates/interfaces
+    dest: /etc/network/interfaces
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+
+- name: set interfaces to 600 if wifi credentials
+  ansible.builtin.file:
+    path: /etc/network/interfaces
+    mode: "0600"
+  when: os_helper_wifi_name is defined and os_helper_wifi_password is defined

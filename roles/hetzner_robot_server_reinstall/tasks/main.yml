@@ -1,0 +1,58 @@
+---
+- name: check if locked
+  ansible.builtin.fail:
+    msg: Hetzner OS installation is disabled.
+  when: hetzner_robot_server_reinstall.locked | default (false)
+
+# - ansible.builtin.debug:
+#     msg: Final warning! Hetzner server {{ hetzner_robot_server_reinstall.ipv4 }} will be wiped.
+
+# - name: pause for 30 seconds
+#   ansible.builtin.pause:
+#     seconds: 30
+
+- name: read public ssh key fingerprint
+  connection: local
+  become: false
+  shell: |
+    ssh-keygen -l -E md5 -f {{  hetzner_robot_server_reinstall.ssh_key_file_pub }} | sed -e 's/^.*MD5://' | sed -e 's/ .*$//'
+  args:
+    executable: /bin/bash
+  register: id_rsa_pub_fingerprint
+
+- ansible.builtin.debug:
+    var: id_rsa_pub_fingerprint.stdout
+
+- name: configure hetzner server to reinstall OS at next boot
+  community.hrobot.boot:
+    hetzner_user: "{{ hetzner_robot_server_reinstall.robot_admin_user }}"
+    hetzner_password: "{{ hetzner_robot_server_reinstall.robot_admin_pw }}"
+    server_number: "{{ hetzner_robot_server_reinstall.id }}"
+    install_linux:
+      dist: "{{ hetzner_robot_server_reinstall.distribution }}"
+      lang: en
+      authorized_keys:
+        - "{{ id_rsa_pub_fingerprint.stdout }}"
+
+- name: resetting server
+  community.hrobot.reset:
+    hetzner_user: "{{ hetzner_robot_server_reinstall.robot_admin_user }}"
+    hetzner_password: "{{ hetzner_robot_server_reinstall.robot_admin_pw }}"
+    server_number: "{{ hetzner_robot_server_reinstall.id }}"
+    reset_type: hardware
+
+- name: waiting for SSH to become available on ip "{{ hetzner_robot_server_reinstall.ip4 }}"
+  ansible.builtin.wait_for: host={{  hetzner_robot_server_reinstall.ip4 }}
+    state=started
+    port=22
+    delay=10
+
+- name: pause for 5 minutes while installing
+  ansible.builtin.pause:
+    minutes: 5
+
+- name: waiting for ssh to become available on ip "{{ hetzner_robot_server_reinstall.ip4 }}"
+  ansible.builtin.wait_for: host={{ hetzner_robot_server_reinstall.ip4 }}
+    state=started
+    port=22
+    delay=10

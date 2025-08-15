@@ -1,0 +1,27 @@
+---
+
+
+
+
+- name: get current hostname
+  shell: |
+    /usr/bin/hostname -s
+  args:
+    executable: /bin/bash
+  register: hostname
+  when: os_helper_hostname is undefined
+
+- name: keeping current hostname
+  set_fact:
+    os_helper_hostname: "{{ hostname.stdout }}"
+  when: os_helper_hostname is undefined
+
+- name: set hostname "{{ os_helper_hostname }}"
+  ansible.builtin.hostname:
+    name: "{{ os_helper_hostname }}"
+  when: os_helper_domain is not defined
+
+- name: set hostname "{{ os_helper_hostname }}.{{ os_helper_domain }}"
+  ansible.builtin.hostname:
+    name: "{{ os_helper_hostname }}.{{ os_helper_domain }}"
+  when: os_helper_domain is defined

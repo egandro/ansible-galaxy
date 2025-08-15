@@ -1,0 +1,14 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 01_remove_cloud_init.yml
+
+- ansible.builtin.include_tasks: 02_set_hostname.yml
+
+- ansible.builtin.include_tasks: 03_install_hosts.yml
+
+- ansible.builtin.include_tasks: 04_install_interfaces.yml
+
+- ansible.builtin.include_tasks: 05_static_dns.yml
+
+- ansible.builtin.include_tasks: 06_disable_networkd.yml

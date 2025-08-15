@@ -1,0 +1,15 @@
+---
+
+- name: add kernel parameter "{{ os_helper_grub_reboot_param_type }}"
+  lineinfile:
+    dest=/etc/default/grub
+    regexp="^GRUB_CMDLINE_LINUX_DEFAULT=\"consoleblank=0\".*$"
+    line="GRUB_CMDLINE_LINUX_DEFAULT=\"{{ os_helper_grub_param_string }}\""
+    state=present
+  when: os_helper_grub_param_string | default(false)
+
+- name: update-grub
+  shell: |
+    update-grub
+  args:
+    executable: /bin/bash

@@ -1,0 +1,34 @@
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+{% if os_helper_ip6 is defined -%}
+iface lo inet6 loopback
+{% endif %}
+
+# The primary network interface
+auto {{ effective_device_name }}
+iface {{ effective_device_name }} inet static
+{% if os_helper_wifi_name is defined and os_helper_wifi_password is defined %}
+  wpa-ssid {{ os_helper_wifi_name }}
+  wpa-psk {{ os_helper_wifi_password }}
+{% endif %}
+  address {{ os_helper_ip4 }}
+  netmask {{ os_helper_netmask4 }}
+  gateway {{ os_helper_gateway4 }}
+{% if os_helper_route4 is defined %}
+  {{ os_helper_route4 }} {{ effective_device_name }}
+{% endif %}
+
+{% if os_helper_ip6 is defined %}
+iface {{ effective_device6_name }} inet6 static
+{% if os_helper_ip6prefix is defined %}
+  address {{ os_helper_ip6prefix }}{{ os_helper_ip6 }}
+{% else %}
+  address {{ os_helper_ip6 }}
+{% endif %}
+  netmask {{ os_helper_netmask6 }}
+  gateway {{ os_helper_gateway6 }}
+{% endif %}
+# default network

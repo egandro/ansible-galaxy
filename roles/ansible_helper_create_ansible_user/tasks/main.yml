@@ -1,0 +1,6 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_update_os.yml
+
+- ansible.builtin.include_tasks: 01_create_ansible_user.yml

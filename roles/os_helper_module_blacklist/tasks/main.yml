@@ -1,0 +1,16 @@
+---
+
+- name: blacklisting module
+  shell: |
+    echo blacklist {{ item }} > /etc/modprobe.d/blacklist-{{ item }}.conf
+  args:
+    executable: /bin/bash
+  with_items: "{{ os_helper_module_blacklist_modules }}"
+  when: os_helper_module_blacklist_modules | default([])
+
+- name: update initramfs
+  shell: |
+    update-initramfs -u -k all
+  args:
+    executable: /bin/bash
+  when: os_helper_module_blacklist_modules | default([])

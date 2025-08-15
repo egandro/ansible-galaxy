@@ -1,0 +1,7 @@
+---
+- name: wait until apt process finishes
+  wait_for:
+    path: /var/lib/dpkg/lock-frontend
+    state: absent
+    delay: 5
+    timeout: 300

@@ -1,0 +1,22 @@
+---
+
+- name: disable systemd-resolved (ok to fail if it's not installed)
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+# - name: remove systemd-resolved
+#   ansible.builtin.package:
+#     name: systemd-resolved
+#     state: present
+
+- name: installing /etc/resolv.conf
+  ansible.builtin.template:
+    src:  templates/resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true

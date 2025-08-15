@@ -1,0 +1,22 @@
+---
+- name: Read public SSH key
+  set_fact:
+    id_rsa_pub: "{{ lookup('file', hetzner_robot_install_ssh_key.ssh_key_file_pub) }}"
+
+- name: installing public ssh key to hetzner robot
+  community.hrobot.ssh_key:
+    hetzner_user: "{{ hetzner_robot_install_ssh_key.robot_admin_user }}"
+    hetzner_password: "{{ hetzner_robot_install_ssh_key.robot_admin_pw }}"
+    state: present
+    name: "Rootserver SSH Key"
+    public_key: "{{ id_rsa_pub.stdout }}"
+
+- name: getting a list all ssh keys in hetzner robot
+  community.hrobot.ssh_key_info:
+    hetzner_user: "{{ hetzner_robot_install_ssh_key.robot_admin_user }}"
+    hetzner_password: "{{ hetzner_robot_install_ssh_key.robot_admin_pw }}"
+  register: ssh_keys
+
+- name: show how many keys were found (this can be different to your main user!)
+  ansible.builtin.debug:
+    msg: "found {{ ssh_keys.ssh_keys | length }} key(s)"

@@ -30,6 +30,6 @@ Example Playbook
     - ansible_helper_server_ssh_keys_ssh_key_file_pub: inventory/foobar/server_id_rsa.pub
     - ansible_helper_server_ssh_keys_ssh_secrets_enc_file: inventory/foobar/ssh_secrets.enc
   roles:
-    - role: egandro.common_ansible.ansible_helper_server_ssh_keys
+    - role: egandro.ansible_galaxy.ansible_helper_server_ssh_keys
       become: true
 ```

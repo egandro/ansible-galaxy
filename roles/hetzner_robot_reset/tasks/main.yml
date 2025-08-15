@@ -1,0 +1,18 @@
+---
+- name: check if locked
+  ansible.builtin.fail:
+    msg: Hetzner Server reset is disabled.
+  when: hetzner_robot_reset.locked | default (false)
+
+- name: resetting server
+  community.hrobot.reset:
+    hetzner_user: "{{ hetzner_robot_reset.robot_admin_user }}"
+    hetzner_password: "{{ hetzner_robot_reset.robot_admin_pw }}"
+    server_number: "{{ hetzner_robot_reset.id }}"
+    reset_type: hardware
+
+- name: waiting for ssh to become available on ip "{{ hetzner_robot_reset.ip4 }}"
+  ansible.builtin.wait_for: host={{ hetzner_robot_reset.ip4 }}
+    state=started
+    port=22
+    delay=10

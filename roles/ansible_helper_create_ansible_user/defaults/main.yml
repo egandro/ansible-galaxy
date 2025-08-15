@@ -1,0 +1,13 @@
+---
+#
+# this depends on your OS - it can be ansibleuser/ansibleuser or root/ansible user
+#
+# hetzner creates a root user - proxmox might create a VM with an
+#
+
+ansible_helper_ansible_user: ansibleuser
+# same as ansible_user - solves chicken/egg problem when we create a remote user
+ansible_helper_ansible_new_user: "{{ ansible_helper_ansible_user }}"
+
+#### use from homedir
+ansible_helper_ssh_key_file_pub: ~/.ssh/id_rsa.pub

@@ -1,0 +1,8 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_public_key.yml
+  when: (ansible_helper_ssh_key_file_pub | default("")) and (ansible_helper_ssh_key_file_pub|length > 0)
+
+- ansible.builtin.include_tasks: 01_private_key.yml
+  when: (ansible_helper_ssh_key_file | default("")) and (ansible_helper_ssh_key_file|length > 0)

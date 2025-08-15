@@ -1,0 +1,26 @@
+---
+- name: read private ssh key
+  connection: local
+  become: false
+  shell: |
+    cat {{ ansible_helper_ssh_key_file }}
+  args:
+    executable: /bin/bash
+  register: id_rsa
+
+- name: add private ssh key to "{{ ansible_helper_ssh_key_for_user }}"
+  shell: |
+    if [ "{{ ansible_helper_ssh_key_for_user }}" = "root" ]; then
+        HOME_DIR=/root
+    else
+        HOME_DIR=/home/"{{ ansible_helper_ssh_key_for_user }}"
+    fi
+    mkdir -p "${HOME_DIR}"/.ssh
+    chmod 700 "${HOME_DIR}"/.ssh
+    chown "{{ ansible_helper_ssh_key_for_user }}":"{{ ansible_helper_ssh_key_for_user }}" "${HOME_DIR}"/.ssh
+
+    echo "{{ id_rsa.stdout }}" > "${HOME_DIR}"/.ssh/id_rsa
+    chown "{{ ansible_helper_ssh_key_for_user }}":"{{ ansible_helper_ssh_key_for_user }}" "${HOME_DIR}"/.ssh/id_rsa
+    chmod 600 "${HOME_DIR}"/.ssh/id_rsa
+  args:
+    executable: /bin/bash
