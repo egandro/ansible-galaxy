@@ -9,4 +9,4 @@
   args:
     executable: /bin/bash
   loop: "{{ proxmox_setup_lxc_templates_images }}"
-  when: proxmox_setup_lxc_templates_images | default(false)
+  when: (proxmox_setup_lxc_templates_images | default([])) | length > 0
