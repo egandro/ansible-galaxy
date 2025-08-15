@@ -6,7 +6,9 @@
     regexp="^GRUB_CMDLINE_LINUX_DEFAULT=\"consoleblank=0\".*$"
     line="GRUB_CMDLINE_LINUX_DEFAULT=\"{{ os_helper_grub_param_string }}\""
     state=present
-  when: os_helper_grub_param_string | default(false)
+  when: os_helper_grub_param_string is defined
+        and os_helper_grub_param_string is string
+        and os_helper_grub_param_string | length > 0
 
 - name: update-grub
   shell: |
