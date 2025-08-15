@@ -9,7 +9,7 @@
     hetzner_password: "{{ hetzner_robot_install_ssh_key.robot_admin_pw }}"
     state: present
     name: "Rootserver SSH Key"
-    public_key: "{{ id_rsa_pub.stdout }}"
+    public_key: "{{ id_rsa_pub }}"
 
 - name: getting a list all ssh keys in hetzner robot
   community.hrobot.ssh_key_info:
