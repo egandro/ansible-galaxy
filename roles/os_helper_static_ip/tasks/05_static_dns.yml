@@ -1,11 +1,15 @@
 ---
 
-- name: disable systemd-resolved (ok to fail if it's not installed)
+- name: check if systemd-resolved is installed
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: disable systemd-resolved if installed
   ansible.builtin.service:
     name: systemd-resolved
     state: stopped
     enabled: false
-  ignore_errors: true
+  when: "'systemd-resolved' in ansible_facts.packages"
 
 # - name: remove systemd-resolved
 #   ansible.builtin.package:
