@@ -1,12 +1,7 @@
 ---
-- name: read private ssh key
-  connection: local
-  become: false
-  shell: |
-    cat {{ ansible_helper_ssh_key_file }}
-  args:
-    executable: /bin/bash
-  register: id_rsa
+- name: read private SSH key
+  set_fact:
+    id_rsa: "{{ lookup('file', ansible_helper_ssh_key_file) }}"
 
 - name: add private ssh key to "{{ ansible_helper_ssh_key_for_user }}"
   shell: |
@@ -19,7 +14,7 @@
     chmod 700 "${HOME_DIR}"/.ssh
     chown "{{ ansible_helper_ssh_key_for_user }}":"{{ ansible_helper_ssh_key_for_user }}" "${HOME_DIR}"/.ssh
 
-    echo "{{ id_rsa.stdout }}" > "${HOME_DIR}"/.ssh/id_rsa
+    echo "{{ id_rsa }}" > "${HOME_DIR}"/.ssh/id_rsa
     chown "{{ ansible_helper_ssh_key_for_user }}":"{{ ansible_helper_ssh_key_for_user }}" "${HOME_DIR}"/.ssh/id_rsa
     chmod 600 "${HOME_DIR}"/.ssh/id_rsa
   args:
