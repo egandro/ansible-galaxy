@@ -1,0 +1,17 @@
+# added by ansible
+
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+iface {{ ansible_default_ipv4.interface }} inet manual
+
+auto {{ proxmox_install_bridge_name }}
+iface {{ proxmox_install_bridge_name }} inet static
+	address {{ proxmox_install_bridge_ip4 }}
+	netmask {{ proxmox_install_bridge_netmask4 }}
+	gateway {{ proxmox_install_bridge_gateway4 }}
+	bridge-ports {{ ansible_default_ipv4.interface }}
+	bridge-stp off
+	bridge-fd 0

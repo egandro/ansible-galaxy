@@ -1,0 +1,32 @@
+---
+
+# - name: security - disable rpc bind and nfs
+#   shell: |
+#     systemctl disable --now rpcbind.target rpcbind.socket rpcbind.service
+#     systemctl disable --now nfs-client.target
+#   args:
+#     executable: /bin/bash
+
+- name: security - disable rpcbind.target
+  ansible.builtin.systemd:
+    name: rpcbind.target
+    state: stopped
+    enabled: false
+
+- name: security - disable rpcbind.socket
+  ansible.builtin.systemd:
+    name: rpcbind.socket
+    state: stopped
+    enabled: false
+
+- name: security - disable rpcbind.service
+  ansible.builtin.systemd:
+    name: rpcbind.service
+    state: stopped
+    enabled: false
+
+- name: security - nfs-client.target
+  ansible.builtin.systemd:
+    name: nfs-client.target
+    state: stopped
+    enabled: false

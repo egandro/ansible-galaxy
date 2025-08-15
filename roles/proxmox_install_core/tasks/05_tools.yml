@@ -1,0 +1,7 @@
+---
+
+- name: install nvme-cli
+  shell: |
+    apt install -y nvme-cli
+  args:
+    executable: /bin/bash

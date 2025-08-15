@@ -1,0 +1,7 @@
+---
+
+# service_postfix_mailname: "server.{{ domain_name }}"
+# service_postfix_relay_server: smtp.gmail.com
+# service_postfix_relay_port: 587
+# service_postfix_relay_user: foobar@gmail.com
+# service_postfix_relay_password: SecretPassword

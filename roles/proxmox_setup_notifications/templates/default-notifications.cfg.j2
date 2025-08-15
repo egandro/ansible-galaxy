@@ -1,0 +1,9 @@
+sendmail: mail-to-root
+        comment Send mails to root@pam's email address
+        mailto {{ proxmox_setup_notifications_email }}
+        mailto-user root@pam
+
+matcher: default-matcher
+        comment Route all notifications to mail-to-root
+        mode all
+        target mail-to-root

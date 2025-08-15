@@ -1,0 +1,2 @@
+---
+proxmox_pbs_install_postfix_mailname: pbs.example.com

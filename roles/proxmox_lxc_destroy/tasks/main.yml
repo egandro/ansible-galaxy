@@ -1,0 +1,8 @@
+---
+
+- name: destroy lxc
+  shell: |
+    pct unlock {{ proxmox_lxc_vmid }} || true
+    pct destroy {{ proxmox_lxc_vmid }} --force 1 --purge 1 || true
+  args:
+    executable: /bin/bash

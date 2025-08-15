@@ -1,0 +1,19 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_discover.yml
+
+# # restart if an interfaces.new exists
+# - ansible.builtin.include_tasks: 50_network_restart.yml
+#   when: interfaces_new_stat.stat.exists
+
+- ansible.builtin.include_tasks: 02_tools.yml
+
+- ansible.builtin.include_tasks: 03_default_bridge.yml
+  when: proxmox_install_bridge == "default"
+
+- ansible.builtin.include_tasks: 04_nat_bridge.yml
+  when: proxmox_install_bridge == "nat"
+
+- ansible.builtin.include_tasks: 50_network_restart.yml
+  when: proxmox_install_bridge_restart | default(false)

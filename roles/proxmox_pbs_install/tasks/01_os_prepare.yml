@@ -1,0 +1,16 @@
+---
+- name: gather ansible facts
+  ansible.builtin.setup:
+
+- name: checking for PBS installation
+  stat:
+    path: /etc/proxmox-backup
+  register: pbs_installed
+
+- name: checking kernel
+  shell: |
+    uname -r
+  args:
+    executable: /bin/bash
+  register: kernel_release
+

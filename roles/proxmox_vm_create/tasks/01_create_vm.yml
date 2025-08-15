@@ -1,0 +1,113 @@
+---
+# https://www.youtube.com/watch?v=shiIi38cJe4
+# https://pve.proxmox.com/pve-docs/qm.1.html
+
+#
+# we need to downloaded templates + set them up before this will work
+#
+
+- name: creating proxmox vm
+  shell: |
+    qm unlock {{ proxmox_vm_vmid }} || true
+    qm stop {{ proxmox_vm_vmid }} || true
+    qm destroy {{ proxmox_vm_vmid }} --destroy-unreferenced-disks 1 --purge 1  || true
+
+    qm clone {{ proxmox_vm_template_id }} {{ proxmox_vm_vmid }} \
+       --name "{{ proxmox_vm_name }}" --full 1 --format {{ proxmox_vm_format }} --storage {{ proxmox_vm_storage }}
+  args:
+    executable: /bin/bash
+
+- name: resize disk
+  shell: |
+    qm disk resize {{ proxmox_vm_vmid }} scsi0 {{ proxmox_vm_disk_size }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_disk_size | default(false)
+
+- name: set cores
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --cores {{ proxmox_vm_cores }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_cores | default(false)
+
+- name: set memory
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --memory {{ proxmox_vm_memory }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_memory | default(false)
+
+- name: set onboot
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --onboot {{ proxmox_vm_onboot }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_onboot | default(false)
+
+- name: networks
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --net{{ internal_item.id }} {{ internal_item.data }}
+  args:
+    executable: /bin/bash
+  with_items: "{{ proxmox_vm_net }}"
+  loop_control:
+    loop_var: internal_item
+  when: proxmox_vm_net | default([])
+
+- name: cloud image ifconfig
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --ipconfig{{ internal_item.id }} {{ internal_item.data }}
+  args:
+    executable: /bin/bash
+  with_items: "{{ proxmox_vm_ipconfig }}"
+  loop_control:
+    loop_var: internal_item
+  when: proxmox_vm_ipconfig | default([])
+
+- name: cloud image searchdomain
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --searchdomain {{ proxmox_vm_searchdomain }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_searchdomain | default(false)
+
+- name: cloud image nameserver
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --nameserver {{ proxmox_vm_nameserver }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_nameserver | default(false)
+
+- name: tags
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --tags "{{ proxmox_vm_tags }}"
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_tags | default(false)
+
+- name: description
+  shell: |
+    qm set {{ proxmox_vm_vmid }} --description '{{ proxmox_vm_description }}'
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_description | default(false)
+
+# We need to run UTC - always :)
+# This needs to be UTC if we communicate linux <-> linux out of the host
+# I only found this out, when Keycloak was running on a hetzner cloud server
+# and the clock had a 1h diff.
+# localtime is only needed for Windows
+
+# - name: always enable localtime
+#   shell: |
+#     qm set {{ proxmox_vm_vmid }} --localtime 1
+#   args:
+#     executable: /bin/bash
+
+- name: start after creation
+  shell: |
+    qm start {{ proxmox_vm_vmid }}
+  args:
+    executable: /bin/bash
+  when: proxmox_vm_start_after_creation | default(false)

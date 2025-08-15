@@ -1,0 +1,12 @@
+---
+
+- name: test if nfs-common exists
+  ansible.builtin.stat:
+    path: /etc/default/nfs-common
+  register: nfs_common
+
+- name: test if postfix exists
+  ansible.builtin.stat:
+    path: /etc/postfix/master.cf
+  register: postfix_master_cf
+

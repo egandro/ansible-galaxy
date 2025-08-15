@@ -1,0 +1,25 @@
+---
+- name: get proxmox vm state
+  community.general.proxmox_vm_info:
+    api_host: "{{ proxmox_vm_api_host }}"
+    api_user: "{{ proxmox_vm_api_user }}"
+    api_password: "{{ proxmox_vm_api_password }}"
+    type: qemu
+    vmid: "{{ proxmox_vm_vmid }}"
+  register: vm_state
+
+- name: stopping proxmox vm if running
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_vm_api_host }}"
+    api_user: "{{ proxmox_vm_api_user }}"
+    api_password: "{{ proxmox_vm_api_password }}"
+    vmid: "{{ proxmox_vm_vmid }}"
+    state: stopped
+    force: true
+  ignore_errors: true
+  when: (vm_state.proxmox_vms | length >0) and (vm_state.proxmox_vms[0].status == 'running')
+
+- name: pause for 10 seconds if vm was running
+  ansible.builtin.pause:
+    seconds: 10
+  when: (vm_state.proxmox_vms | length >0) and (vm_state.proxmox_vms[0].status == 'running')

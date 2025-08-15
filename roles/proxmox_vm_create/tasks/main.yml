@@ -1,0 +1,10 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_discover.yml
+
+- ansible.builtin.include_tasks: 01_create_vm.yml
+  when: proxmox_vm_destroy_existing or pvesh_result.stdout == ""
+
+- ansible.builtin.include_tasks: 51_reboot_after_init.yml
+  when: (proxmox_vm_destroy_existing or pvesh_result.stdout == "") and (proxmox_vm_start_after_creation | default(false)) and (proxmox_vm_reboot_after_cloud_init | default(false))

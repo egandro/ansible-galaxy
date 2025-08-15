@@ -1,0 +1,40 @@
+---
+- name: install stop-all-guests.sh
+  ansible.builtin.template:
+    src:  templates/stop-all-guests.sh
+    dest: /usr/local/bin/stop-all-guests.sh
+    owner: root
+    group: root
+    mode: '0755'
+    # keep existing
+    force: false
+
+- name: install start-all-guests.sh
+  ansible.builtin.template:
+    src:  templates/start-all-guests.sh
+    dest: /usr/local/bin/start-all-guests.sh
+    owner: root
+    group: root
+    mode: '0755'
+    # keep existing
+    force: false
+
+- name: install reboot-proxmox.sh
+  ansible.builtin.template:
+    src:  templates/reboot-proxmox.sh
+    dest: /usr/local/bin/reboot-proxmox.sh
+    owner: root
+    group: root
+    mode: '0755'
+    # keep existing
+    force: false
+
+- name: install qm-kill.sh
+  ansible.builtin.template:
+    src:  templates/qm-kill.sh
+    dest: /usr/local/bin/qm-kill.sh
+    owner: root
+    group: root
+    mode: '0755'
+    # keep existing
+    force: false

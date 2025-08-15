@@ -1,0 +1,16 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_discover.yml
+
+- ansible.builtin.include_tasks: 01_create_acme_account.yml
+  when: acme_account_list.stdout is not search('default')
+
+- ansible.builtin.include_tasks: 10_create_acme_plugin_hetzner.yml
+  when: acme_plugin_list.stdout is not search('hetzner_plugin')
+
+- ansible.builtin.include_tasks: 20_define_acme_domain_hetzner.yml
+  when: acme_plugin_list.stdout is not search('hetzner_plugin')
+
+- ansible.builtin.include_tasks: 30_acme_cert_order.yml
+  when: proxmox_setup_acme_hetzner_order_cert

@@ -1,0 +1,4 @@
+---
+proxmox_install_core_postfix_mailname: proxmox.example.com
+proxmox_install_core_reboot_force: false
+proxmox_install_core_debug_fail_before_proxmox_ve_installer: false

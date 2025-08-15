@@ -1,0 +1,14 @@
+---
+
+# https://pve.proxmox.com/pve-docs/chapter-sysadmin.html#_apply_network_changes
+# https://forum.proxmox.com/threads/pvenetcommit-enabling-network-changes-without-rebooting.6069/
+
+- name: installing default bridge
+  ansible.builtin.template:
+    src:  templates/interfaces.default
+    #dest: /etc/network/interfaces
+    dest: /etc/network/interfaces.new
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true

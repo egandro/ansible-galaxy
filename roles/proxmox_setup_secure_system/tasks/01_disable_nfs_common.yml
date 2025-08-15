@@ -1,0 +1,22 @@
+---
+
+- name: /etc/default/nfs-common - set NEED_STATD=no
+  lineinfile:
+    dest: /etc/default/nfs-common
+    regexp: '^NEED_STATD=$'
+    line: "NEED_STATD=no"
+    state: present
+
+- name: /etc/default/nfs-common - set NEED_IDMAPD=no
+  lineinfile:
+    dest: /etc/default/nfs-common
+    regexp: '^NEED_IDMAPD=$'
+    line: "NEED_IDMAPD=no"
+    state: present
+
+- name: /etc/default/nfs-common - set NEED_GSSD=no
+  lineinfile:
+    dest: /etc/default/nfs-common
+    regexp: '^NEED_GSSD=$'
+    line: "NEED_GSSD=no"
+    state: present

@@ -1,0 +1,9 @@
+---
+
+- name: ensure "{{ proxmox_setup_storage_local_folder }}" dir exists
+  file:
+    path: "{{ proxmox_setup_storage_local_folder }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0777' ## this is bad

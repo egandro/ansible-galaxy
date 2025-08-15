@@ -1,0 +1,26 @@
+---
+- name: stopping proxmox vm
+  shell: |
+    qm unlock {{ proxmox_vm_vmid }} || true
+    qm stop {{ proxmox_vm_vmid }} || true
+  args:
+    executable: /bin/bash
+
+- name: pause for 10 seconds
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: restart vm
+  shell: |
+    qm start {{ proxmox_vm_vmid }}
+  args:
+    executable: /bin/bash
+
+- name: ip proxmox_vm_ip4 was provided - wait for ssh to become available again
+  connection: local
+  become: false
+  ansible.builtin.wait_for:
+    host: "{{ proxmox_vm_ip4 }}"
+    port: 22
+    delay: 10
+  when: proxmox_vm_ip4 | default(false)

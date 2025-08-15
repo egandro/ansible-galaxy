@@ -1,0 +1,17 @@
+---
+- name: install acme plugin hetzner secret (temp file)
+  ansible.builtin.copy:
+    content: "HETZNER_Token={{ proxmox_setup_acme_hetzner_api_token }}"
+    dest: /tmp/hetzner_dns_api
+    mode: "0600"
+
+- name: install acme plugin hetzner
+  ansible.builtin.shell: |
+    {{ proxmox_setup_acme_hetzner_command }} acme plugin add dns hetzner_plugin --api hetzner --data /tmp/hetzner_dns_api
+  args:
+    executable: /bin/bash
+
+- name: remove acme plugin hetzner secret (temp file)
+  ansible.builtin.file:
+    path: /tmp/hetzner_dns_api
+    state: absent

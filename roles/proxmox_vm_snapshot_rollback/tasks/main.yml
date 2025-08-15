@@ -1,0 +1,25 @@
+---
+# https://pve.proxmox.com/pve-docs/qm.1.html
+
+- name: rollback proxmox vm snapshot (if exists)
+  shell: |
+    qm rollback {{ proxmox_vm_vmid }} "{{ proxmox_vm_snapshot_name }}" --start 1 || true
+  args:
+    executable: /bin/bash
+
+- name: ip proxmox_vm_ip4 was provided - wait for ssh to become available again
+  connection: local
+  become: false
+  ansible.builtin.wait_for:
+    host: "{{ proxmox_vm_ip4 }}"
+    port: 22
+    delay: 10
+  when: proxmox_vm_ip4 | default(false)
+
+# bug report: https://bugzilla.proxmox.com/show_bug.cgi?id=5032
+- name: sync the clock via hwclock
+  shell: |
+    qm guest exec {{ proxmox_vm_vmid }} /usr/sbin/hwclock -- --hctosys || true
+    # the -- are needed to separate extra args
+  args:
+    executable: /bin/bash

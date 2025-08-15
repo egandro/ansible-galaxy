@@ -1,0 +1,8 @@
+---
+
+- name: order certificate via acme
+  ansible.builtin.shell: |
+    # the certificate might exists
+    {{ proxmox_setup_acme_namecheap_command }} acme cert order || true
+  args:
+    executable: /bin/bash

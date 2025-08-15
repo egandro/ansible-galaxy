@@ -1,0 +1,11 @@
+---
+
+- name: apt-get dist-upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+
+# Hetzner might not have installed hits
+- name: install bridge-utils
+  ansible.builtin.package:
+    name: bridge-utils
+    state: present

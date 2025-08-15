@@ -1,0 +1,32 @@
+---
+
+# https://forum.proxmox.com/threads/snapshot-from-command-line-shell.43438/
+
+- name: remove old proxmox vm snapshot (if exists)
+  shell: |
+    qm delsnapshot {{ proxmox_vm_vmid }}  "{{ proxmox_vm_snapshot_name }}" || true
+  args:
+    executable: /bin/bash
+
+- name: pause for 10 seconds
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: get timestamp
+  shell: |
+    echo "Snapshot created at: $(date)"
+  args:
+    executable: /bin/bash
+  register: snapshot_description
+
+- name: create proxmox vm snapshot
+  shell: |
+    VM_STATE=0
+
+    if [ "{{ proxmox_vm_snapshot_include_ram }}" = "True" ]; then
+      VM_STATE=1
+    fi
+
+    qm snapshot {{ proxmox_vm_vmid }} "{{ proxmox_vm_snapshot_name }}" --description "{{ snapshot_description.stdout }}" --vmstate ${VM_STATE}
+  args:
+    executable: /bin/bash

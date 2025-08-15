@@ -1,0 +1,39 @@
+---
+
+- name: disallow ssh password authentication
+  ansible.builtin.lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp="^#PasswordAuthentication"
+    line="PasswordAuthentication no"
+    state=present
+
+- name: disallow ssh root login - without-password
+  ansible.builtin.lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp="^PermitRootLogin without-password"
+    line="#PermitRootLogin without-password"
+    state=present
+
+- name: disallow ssh root login - prohibit-password
+  ansible.builtin.lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp="^PermitRootLogin prohibit-password"
+    line="#PermitRootLogin prohibit-password"
+    state=present
+
+- name: disallow ssh root login - yes
+  ansible.builtin.lineinfile:
+    dest=/etc/ssh/sshd_config
+    regexp="^#PermitRootLogin yes"
+    line="PermitRootLogin no"
+    state=present
+
+- name: restart ssh
+  service:
+    name: ssh
+    state: restarted
+
+- name: set root password (required for proxmox PEM login)
+  ansible.builtin.user:
+    name: root
+    password: "{{ os_helper_root_password | password_hash('sha512') }}"

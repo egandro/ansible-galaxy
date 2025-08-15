@@ -1,0 +1,16 @@
+matcher: default-matcher
+        comment Route all notifications to mail-to-root
+        disable true
+        mode all
+        target mail-to-root
+
+sendmail: mail-to-root
+        comment Send mails to root@pam's email address
+        mailto {{ proxmox_setup_notifications_email }}
+        mailto-user root@pam
+
+matcher: error-matcher
+        comment Route only error and unknown to mail-to-root
+        match-severity error,unknown
+        mode all
+        target mail-to-root

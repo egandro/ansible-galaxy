@@ -1,0 +1,25 @@
+---
+#######################################
+#
+#    Security Zone!! - proxmox installed some stuff that needs to uninstalled or disabled.
+#
+#    https://github.com/ehlesp/smallab-k8s-pve-guide/blob/main/G011%20-%20Host%20hardening%2005%20~%20Proxmox%20VE%20services.md
+#
+#######################################
+
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_discovery.yml
+
+- ansible.builtin.include_tasks: 01_disable_nfs_common.yml
+  when: nfs_common.stat.exists
+
+- ansible.builtin.include_tasks: 02_disable_rpcbind_nfs.yml
+
+- ansible.builtin.include_tasks: 03_spiceproxy.yml
+
+- ansible.builtin.include_tasks: 04_postfix.yml
+  when: postfix_master_cf.stat.exists
+
+- ansible.builtin.include_tasks: 05_pveproxy.yml
+  when: proxmox_setup_secure_system_pveproxy_listen_ip | default(false)

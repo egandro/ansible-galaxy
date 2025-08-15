@@ -1,0 +1,12 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 01_os_prepare.yml
+
+- ansible.builtin.include_tasks: 02_kernel_setup.yml
+  when: '"-pve" not in kernel_release.stdout'
+
+- ansible.builtin.include_tasks: 03_proxmox_pbs_setup.yml
+  when: pbs_installed.stat.exists == false
+
+- ansible.builtin.include_tasks: 05_tools.yml

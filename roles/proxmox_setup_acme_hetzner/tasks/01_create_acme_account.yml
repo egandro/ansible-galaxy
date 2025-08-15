@@ -1,0 +1,17 @@
+---
+
+- name: create acme account (production)
+  expect:
+    command: "{{ proxmox_setup_acme_hetzner_command }} acme account register default info@{{ proxmox_setup_acme_hetzner_domain }} --directory https://acme-v02.api.letsencrypt.org/directory"
+    responses:
+      "Do you agree to the above terms": y
+      "Do you want to use external account binding": N
+  when: proxmox_setup_acme_hetzner_production
+
+- name: create acme account (staging)
+  expect:
+    command: "{{ proxmox_setup_acme_hetzner_command }} acme account register default info@{{ proxmox_setup_acme_hetzner_domain }} --directory https://acme-staging-v02.api.letsencrypt.org/directory"
+    responses:
+      "Do you agree to the above terms": y
+      "Do you want to use external account binding": N
+  when: not proxmox_setup_acme_hetzner_production

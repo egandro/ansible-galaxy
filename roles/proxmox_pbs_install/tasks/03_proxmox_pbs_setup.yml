@@ -1,0 +1,42 @@
+---
+
+# https://pbs.proxmox.com/docs/installation.html
+# https://techviewleo.com/install-proxmox-backup-server-from-iso-debian/
+
+- name: install postfix
+  shell: |
+    echo "postfix postfix/mailname string {{ proxmox_pbs_install_postfix_mailname }}" | debconf-set-selections
+    echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
+    DEBIAN_FRONTEND=noninteractive
+    apt-get install -y ssl-cert postfix
+  args:
+    executable: /bin/bash
+
+- name: install proxmox-backup
+  shell: |
+    export DEBIAN_FRONTEND=noninteractive
+    apt install proxmox-backup -y -o DPkg::options::="--force-overwrite"
+  args:
+    executable: /bin/bash
+
+- name: remove old kernels
+  shell: |
+    apt remove -y linux-image-amd64 'linux-image-6.12*'
+  args:
+    executable: /bin/bash
+
+- name: update-grub
+  shell: |
+    update-grub
+  args:
+    executable: /bin/bash
+
+- name: remove pbs-enterprise.sources
+  shell: |
+    rm -f /etc/apt/sources.list.d/pbs-enterprise.sources
+  args:
+    executable: /bin/bash
+
+- name: pbs web website
+  ansible.builtin.debug:
+    msg: "pbs is available at: https://{{ ansible_host }}:8007/"

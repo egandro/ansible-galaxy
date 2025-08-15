@@ -1,0 +1,73 @@
+---
+# https://pve.proxmox.com/wiki/Install_Proxmox_VE_on_Debian_12_Bookworm
+
+- name: install postfix
+  shell: |
+    echo "postfix postfix/mailname string {{ proxmox_install_core_postfix_mailname }}" | debconf-set-selections
+    echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
+    DEBIAN_FRONTEND=noninteractive
+    apt install -y ssl-cert postfix
+  args:
+    executable: /bin/bash
+
+- name: debug fail before install proxmox-ve
+  ansible.builtin.fail:
+    msg: This is supposed to fail for debugging this installer
+  when: proxmox_install_core_debug_fail_before_proxmox_ve_installer | default(false)
+
+- name: install chrony
+  shell: |
+    apt install -y chrony
+  args:
+    executable: /bin/bash
+
+- name: install open-iscsi
+  shell: |
+    apt install -y open-iscsi
+  args:
+    executable: /bin/bash
+
+# debugging
+# apt -oDebug::pkgAcquire::Worker=1 install -y
+#
+- name: install proxmox-ve
+  shell: |
+    apt install -y proxmox-ve
+  args:
+    executable: /bin/bash
+
+# https://forum.proxmox.com/threads/single-file-restore-fails.110259/
+- name: install proxmox-backup-restore-image (for single file restore)
+  shell: |
+    apt install -y proxmox-backup-restore-image
+  args:
+    executable: /bin/bash
+
+- name: remove old kernels
+  shell: |
+    export DEBIAN_FRONTEND=noninteractive
+    apt remove -y linux-image-amd64 'linux-image-6.12*'
+  args:
+    executable: /bin/bash
+
+- name: update-grub
+  shell: |
+    update-grub
+  args:
+    executable: /bin/bash
+
+- name: remove os-prober
+  shell: |
+    apt remove -y os-prober
+  args:
+    executable: /bin/bash
+
+- name: remove pve-enterprise.sources
+  shell: |
+    rm -f /etc/apt/sources.list.d/pve-enterprise.sources
+  args:
+    executable: /bin/bash
+
+- name: proxmox web website
+  ansible.builtin.debug:
+    msg: "proxmox is available at: https://{{ ansible_host }}:8006/"

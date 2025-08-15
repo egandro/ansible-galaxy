@@ -1,0 +1,5 @@
+---
+proxmox_vm_api_host: proxmox
+proxmox_vm_api_user: root@pam
+proxmox_vm_api_password: SecretPassword
+proxmox_vm_vmid: 1000

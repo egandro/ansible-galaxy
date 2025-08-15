@@ -1,0 +1,4 @@
+---
+proxmox_vm_vmid: 1000
+proxmox_vm_snapshot_name: snapshot
+#proxmox_vm_ip4: 1.2.3.4 # wait for ssh

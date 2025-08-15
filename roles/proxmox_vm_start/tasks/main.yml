@@ -1,0 +1,10 @@
+---
+- name: ensure proxmox vm is running
+  community.general.proxmox_kvm:
+    api_host: "{{ proxmox_vm_api_host }}"
+    api_user: "{{ proxmox_vm_api_user }}"
+    api_password: "{{ proxmox_vm_api_password }}"
+    vmid: "{{ proxmox_vm_vmid }}"
+    state: started
+  ignore_errors: true
+

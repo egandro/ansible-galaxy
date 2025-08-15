@@ -1,0 +1,8 @@
+---
+
+- name: test if vmid exists
+  shell: |
+    pvesh get /cluster/nextid -vmid {{ proxmox_lxc_vmid }} >/dev/null 2>/dev/null || echo "machine exists"
+  args:
+    executable: /bin/bash
+  register: pvesh_result

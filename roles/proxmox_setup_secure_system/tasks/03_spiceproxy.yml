@@ -1,0 +1,11 @@
+---
+
+
+# https://forum.proxmox.com/threads/disable-spiceproxy.24816/
+# bug (we need to mask it):/ - https://github.com/ehlesp/smallab-k8s-pve-guide/blob/main/G011%20-%20Host%20hardening%2005%20~%20Proxmox%20VE%20services.md
+- name: security - disable spiceproxy
+  ansible.builtin.systemd:
+    name: spiceproxy
+    enabled: false
+    masked: true
+    state: stopped

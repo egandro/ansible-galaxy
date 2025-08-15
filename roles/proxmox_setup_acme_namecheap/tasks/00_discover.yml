@@ -1,0 +1,19 @@
+---
+
+# https://pve.proxmox.com/wiki/Certificate_Management
+# https://github.com/lae/ansible-role-proxmox/issues/34
+# (german) - https://www.youtube.com/watch?v=5D4U0kVxbJ4
+
+- name: install proxmox acme dependencies (python3)
+  apt:
+    name: ['python3-pexpect']
+    state: present
+    update_cache: yes
+
+- name: verify acme account
+  command: "{{ proxmox_setup_acme_namecheap_command }} acme account list"
+  register: acme_account_list
+
+- name: verify acme plugin
+  command: "{{ proxmox_setup_acme_namecheap_command }} acme plugin list"
+  register: acme_plugin_list

@@ -1,0 +1,76 @@
+---
+# https://pve.proxmox.com/wiki/Install_Proxmox_VE_on_Debian_12_Bookworm
+
+
+- name: create /etc/apt/sources.list.d/pbs-install-repo.sources
+  ansible.builtin.blockinfile:
+    path: /etc/apt/sources.list.d/pbs-install-repo.sources
+    create: yes
+    mode: '0644'
+    owner: root
+    group: root
+    block: |
+      Types: deb
+      URIs: http://download.proxmox.com/debian/pbs
+      Suites: trixie
+      Components: pbs-no-subscription
+      Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+      Architechtures: amd64
+
+- name: install proxmox gpg key
+  shell: |
+    wget https://enterprise.proxmox.com/debian/proxmox-archive-keyring-trixie.gpg -O /usr/share/keyrings/proxmox-archive-keyring.gpg
+    apt modernize-sources --assume-yes || true
+  args:
+    executable: /bin/bash
+
+- name: apt update && apt full-upgrade
+  shell: |
+    apt update && apt full-upgrade -y
+  args:
+    executable: /bin/bash
+
+- name: install pve-kernel
+  shell: |
+    export DEBIAN_FRONTEND=noninteractive
+    apt install ssl-cert proxmox-default-kernel -y -o DPkg::options::="--force-overwrite"
+    #apt install ssl-cert proxmox-kernel-6.5 -y -o DPkg::options::="--force-overwrite"
+
+    # chat gpt crap
+    BOOT_DISK=$(grub-probe --target=disk /boot)
+    debconf-set-selections <<< "grub-pc grub-pc/install_devices multiselect $BOOT_DISK"
+    debconf-set-selections <<< "grub-pc grub-pc/install_devices_empty boolean false"
+
+    update-grub
+  args:
+    executable: /bin/bash
+
+# - name: reboot
+#   ansible.builtin.reboot:
+#     reboot_timeout: 3600
+
+- name: Reboot the server
+  tags: reboot
+  shell: "sleep 5 && reboot"
+  async: 1
+  poll: 0
+
+- name: wait for ssh to become available again
+  connection: local
+  become: false
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 10
+    timeout: 120
+  # the inventory_hostname might be only available via a JumpHost
+  ignore_errors: true
+
+- name: pause for 10 seconds (force)
+  ansible.builtin.pause:
+    seconds: 10
+# - name: Check the Uptime of the servers
+#   shell: "uptime"
+#   register: Uptime
+
+# - debug: var=Uptime

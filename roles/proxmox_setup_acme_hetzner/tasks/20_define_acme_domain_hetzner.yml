@@ -1,0 +1,30 @@
+---
+- name: get current hostname
+  shell: |
+    /usr/bin/hostname -s
+  args:
+    executable: /bin/bash
+  register: hostname
+  when: proxmox_setup_acme_hetzner_proxmox_host is undefined
+
+- name: keeping current hostname
+  set_fact:
+    proxmox_setup_acme_hetzner_proxmox_host: "{{ hostname.stdout }}"
+  when: proxmox_setup_acme_hetzner_proxmox_host is undefined
+
+# https://forum.proxmox.com/threads/acme-certs-with-dns-plugin.108116/
+- name: define acme domains (proxmox)
+  ansible.builtin.shell: |
+    pvenode config set --acmedomain0 domain={{ proxmox_setup_acme_hetzner_proxmox_host }}.{{ proxmox_setup_acme_hetzner_domain }},plugin=hetzner_plugin
+  args:
+    executable: /bin/bash
+  when: proxmox_setup_acme_hetzner_command == 'pvenode'
+
+# https://pbs.proxmox.com/docs-1/command-syntax.html
+# shit does not work :/
+- name: define acme domains (pbs)
+  ansible.builtin.shell: |
+    proxmox-backup-manager node update --acmedomain0 domain={{ proxmox_setup_acme_hetzner_proxmox_host }}.{{ proxmox_setup_acme_hetzner_domain }},plugin=hetzner_plugin
+  args:
+    executable: /bin/bash
+  when: proxmox_setup_acme_hetzner_command == 'proxmox-backup-manager'

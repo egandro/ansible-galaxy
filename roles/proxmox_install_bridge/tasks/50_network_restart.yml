@@ -1,0 +1,51 @@
+---
+
+# https://pve.proxmox.com/pve-docs/chapter-sysadmin.html#_apply_network_changes
+# https://forum.proxmox.com/threads/pvenetcommit-enabling-network-changes-without-rebooting.6069/
+- name: commit network
+  ansible.builtin.service:
+    name: pvenetcommit
+    state: restarted
+
+- name: restart network
+  shell: |
+    /usr/sbin/ifreload -a
+  args:
+    executable: /bin/bash
+
+#############################################
+#
+# do not use this methods :)
+#
+
+# https://stackoverflow.com/questions/39994218/ansible-to-restart-network-service
+
+# - name: restart systemd-networkd
+#   ansible.builtin.service:
+#     name: systemd-networkd
+#     state: restarted
+#   ignore_errors: true
+
+# https://pve.proxmox.com/pve-docs/chapter-sysadmin.html#_apply_network_changes
+# https://pve.proxmox.com/wiki/Network_Configuration
+
+# - name: restart network
+#   shell: |
+#     /usr/sbin/ifreload -a
+#   args:
+#     executable: /bin/bash
+
+# # https://forum.proxmox.com/threads/adding-bridge-without-rebooting.29438/#post-147661
+
+# - name: install jq
+#   ansible.builtin.package:
+#     name: jq
+#     state: present
+
+# - name: restart network
+#   shell: |
+#     # we assume as single node
+#     NODENAME=$(pvesh get /nodes --output-format=json | jq -r ".[0].node")
+#     pvesh set /nodes/${NODENAME}/network
+#   args:
+#     executable: /bin/bash

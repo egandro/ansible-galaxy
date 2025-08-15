@@ -1,0 +1,16 @@
+---
+- name: install qm-template-downloader.sh
+  ansible.builtin.template:
+    src:  templates/qm-template-downloader.sh
+    dest: /usr/local/bin/qm-template-downloader.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: install create-vm.sh
+  ansible.builtin.template:
+    src:  templates/create-vm.sh
+    dest: /usr/local/bin/create-vm.sh
+    owner: root
+    group: root
+    mode: '0755'

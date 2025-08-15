@@ -1,0 +1,24 @@
+---
+# https://pve.proxmox.com/pve-docs/pveproxy.8.html
+
+- name: securing pveproxy by adding LISTEN_IP in /etc/default/pveproxy
+  ansible.builtin.template:
+    src: templates/pveproxy
+    dest: /etc/default/pveproxy
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+
+- name: restart pveproxy.service (ignoring errors - you might need to reboot)
+  ansible.builtin.systemd:
+    state: restarted
+    name: pveproxy.service
+  ignore_errors: true
+
+- name: restart spiceproxy.service (might print an error if disabled)
+  ansible.builtin.systemd:
+    state: restarted
+    name: spiceproxy.service
+  # this might be disabled
+  ignore_errors: true

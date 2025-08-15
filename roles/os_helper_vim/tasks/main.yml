@@ -1,0 +1,45 @@
+---
+- name: install vim
+  ansible.builtin.package:
+    name: vim
+    state: present
+
+- name: detect vim version
+  shell: |
+    apt list vim 2>&1 | tail -1 | grep vim  | sed -e 's/.*://g' | sed -e 's/\.//' | sed -e 's/\..*//' | sed -e 's/ .*$//g'
+  args:
+    executable: /bin/bash
+  register: vim_version
+
+# - name: vim version
+#   ansible.builtin.debug:
+#     msg: "version: {{ vim_version.stdout }}"
+
+# - name: make vim not suck on debian
+#   ansible.builtin.blockinfile:
+#     path: "/usr/share/vim/vim{{ vim_version.stdout }}/defaults.vim"
+#     marker: '" ansible distributed fix to make vim not suck on debian'
+#     block: |
+#       if has('mouse')
+#         set mouse=r
+#       endif
+#       set background=dark
+
+- name: Create file /etc/vim/vimrc.local (if not present)
+  file:
+    path: "/etc/vim/vimrc.local"
+    owner: root
+    group: root
+    mode: "0644"
+    state: touch
+
+- name: make vim not suck on debian - update /etc/vim/vimrc.local
+  blockinfile:
+    path: /etc/vim/vimrc.local
+    marker: '" {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      augroup system_mouse_override
+        autocmd!
+        autocmd VimEnter * set mouse=r
+        autocmd VimEnter * set background=dark
+      augroup END

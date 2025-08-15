@@ -1,0 +1,5 @@
+---
+- name: test if 'interfaces.new' exits
+  ansible.builtin.stat:
+    path: /etc/network/interfaces.new
+  register: interfaces_new_stat

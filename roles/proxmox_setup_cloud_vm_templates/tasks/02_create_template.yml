@@ -1,0 +1,105 @@
+---
+- name: install p7zip-full (needed for .7z images e.g. kali)
+  ansible.builtin.package:
+    name: p7zip-full
+    state: present
+
+- name: ensure "{{ proxmox_setup_cloud_vm_templates_img_cache }}" dir exists
+  file:
+    path: "{{ proxmox_setup_cloud_vm_templates_img_cache }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: download images
+  shell: |
+    cd "{{ proxmox_setup_cloud_vm_templates_img_cache }}"
+    wget -4 -c -t0 {{ item.url }}
+  args:
+    executable: /bin/bash
+  with_items: "{{ proxmox_setup_cloud_vm_templates_list }}"
+
+- name: create template
+  shell: |
+    VMID={{ item.vmid }}
+    VNAME={{ item.name }}
+    export TEMPLATE_FILE="{{ proxmox_setup_cloud_vm_templates_img_cache }}/$(basename {{ item.url }})"
+    STORAGE={{ proxmox_setup_cloud_vm_templates_proxmox_storage }}
+    #SSH_KEY_FILE="/root/.ssh/id_rsa.pub"
+    SSH_KEY_FILE="/home/{{ ansible_user }}/.ssh/authorized_keys"
+    DISPLAY={{ item.display | default('') }}
+
+    #7z hack (e.g kali)
+    if [[ "${TEMPLATE_FILE}" == *.7z ]]; then
+      START_DIR=$(pwd)
+      # without extension: idea here - https://stackoverflow.com/questions/965053/extract-filename-and-extension-in-bash
+      TEMPLATE_FILE_BASE=$(basename "${TEMPLATE_FILE}")
+      TEMPLATE_FILE_BASE="${TEMPLATE_FILE_BASE%.*}"
+      # assume .cow2 extension
+      COW_TEMPLATE_FILE="{{ proxmox_setup_cloud_vm_templates_img_cache }}/${TEMPLATE_FILE_BASE}.qcow2"
+      rm -f "${COW_TEMPLATE_FILE}"
+      cd "{{ proxmox_setup_cloud_vm_templates_img_cache }}"
+      7z -aoa x "${TEMPLATE_FILE}"
+      export TEMPLATE_FILE="${COW_TEMPLATE_FILE}"
+      cd "${START_DIR}"
+    fi
+
+    # Delete existing machines
+    qm destroy ${VMID} --destroy-unreferenced-disks 1 --purge 1 || true
+
+    # Create new VM
+    # Feel free to change any of these to your liking
+    #  enable the agent https://www.snel.com/support/nstall-qemu-guest-agent-for-debian-ubuntu/
+    #                  https://pve.proxmox.com/pve-docs/qm.1.html
+
+    qm create ${VMID} --name "${VNAME}" --ostype l26 --agent=1
+
+    # Set networking to default bridge
+    qm set ${VMID} --net0 virtio,bridge=vmbr0
+
+    if [[ "${DISPLAY}" != "vga" ]]; then
+      # Set display to serial
+      qm set ${VMID} --serial0 socket --vga serial0
+    fi
+
+    # Set memory, cpu, type defaults
+    #https://qemu-project.gitlab.io/qemu/system/qemu-cpu-models.html
+    qm set ${VMID} --memory 1024 --cores 2 --cpu host
+
+    # Set boot device to new file
+    qm set ${VMID} --scsi0 ${STORAGE}:0,import-from="${TEMPLATE_FILE}",discard=on,ssd=1
+
+    # Set scsi hardware as default boot disk using virtio scsi single
+    qm set ${VMID} --boot order=scsi0 --scsihw virtio-scsi-single
+
+    # Enable Qemu guest agent in case the guest has it available
+    qm set ${VMID} --agent enabled=1,fstrim_cloned_disks=1
+
+    # Add cloud-init device
+    qm set ${VMID} --ide2 ${STORAGE}:cloudinit
+
+    # Set CI ip config
+    # IP6 = auto means SLAAC (a reliable default with no bad effects on non-IPv6 networks)
+    # IP = DHCP means what it says, so leave that out entirely on non-IPv4 networks to avoid DHCP delays
+    qm set ${VMID} --ipconfig0 "ip6=auto,ip=dhcp"
+
+    ### Import the ssh keyfile
+    qm set ${VMID} --sshkeys ${SSH_KEY_FILE}
+
+    # If you want to do password-based auth instead
+    # Then use this option and comment out the line above
+    ## qm set ${VMID} --cipassword password
+
+    # Add the user
+    qm set ${VMID} --ciuser {{ ansible_user }}
+
+    # we do the resizing later
+    # Resize the disk to 8G, a reasonable minimum. You can expand it more later.
+    # If the disk is already bigger than 8G, this will fail, and that is okay.
+    # qm disk resize ${VMID} scsi0 8G || true
+
+    # Make it a template
+    qm template ${VMID} || true
+  args:
+    executable: /bin/bash
+  with_items: "{{ proxmox_setup_cloud_vm_templates_list }}"

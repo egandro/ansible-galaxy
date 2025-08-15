@@ -1,0 +1,7 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 01_install_scripts.yml
+
+- ansible.builtin.include_tasks: 02_create_template.yml
+  when: proxmox_setup_cloud_vm_templates_list | default(false)

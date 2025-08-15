@@ -1,0 +1,6 @@
+---
+- name: remove old proxmox vm snapshot (if exists)
+  shell: |
+    qm delsnapshot {{ proxmox_vm_vmid }}  "{{ proxmox_vm_snapshot_name }}" || true
+  args:
+    executable: /bin/bash

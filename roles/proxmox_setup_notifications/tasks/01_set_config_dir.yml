@@ -1,0 +1,8 @@
+---
+
+- set_fact:
+    config_dir: /etc/pve
+
+- set_fact:
+    config_dir: /etc/proxmox-backup
+  when: proxmox_setup_notifications_type == 'pbs'

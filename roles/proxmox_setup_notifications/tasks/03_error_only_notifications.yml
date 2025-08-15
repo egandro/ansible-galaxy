@@ -1,0 +1,16 @@
+---
+
+- name: install /etc/pve_notifications.cfg (errors only)
+  ansible.builtin.template:
+    src:  templates/errors-only-notifications.cfg.j2
+    dest: /etc/pve_notifications.cfg
+    owner: root
+    group: www-data
+    mode: "0600"
+
+# cross filesystem links mitigation of python rename that is used in the template
+- name: move /etc/pve_notifications.cfg to /etc/pve/notifications.cfg
+  shell: |
+    mv /etc/pve_notifications.cfg {{ config_dir }}/notifications.cfg
+  args:
+    executable: /bin/bash

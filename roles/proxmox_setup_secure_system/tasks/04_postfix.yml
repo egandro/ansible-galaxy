@@ -1,0 +1,14 @@
+---
+
+- name: /etc/postfix/master.cf
+  lineinfile:
+    dest: /etc/postfix/master.cf
+    regexp: '^smtp.*smtpd$'
+    line: "#smtp      inet  n       -       y       -       -       smtpd"
+    state: present
+
+- name: reload postfix
+  shell: |
+    /usr/sbin/postfix reload
+  args:
+    executable: /bin/bash

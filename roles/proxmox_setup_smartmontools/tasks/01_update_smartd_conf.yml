@@ -1,0 +1,13 @@
+---
+
+- name: add mailer entry to entries to /etc/smartd.conf
+  lineinfile:
+    dest: /etc/smartd.conf
+    regexp: '^DEVICESCAN -a -m .* -M test$'
+    line: "DEVICESCAN -a -m {{ proxmox_setup_smartmontools_email }} -M test"
+    state: present
+
+- name: restart smartmontools
+  service:
+    name: smartmontools
+    state: restarted

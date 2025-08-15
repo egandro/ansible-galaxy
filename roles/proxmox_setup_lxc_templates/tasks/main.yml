@@ -1,0 +1,12 @@
+---
+
+# https://forum.proxmox.com/threads/is-it-possible-to-download-lxc-template-from-command-line.24854/
+
+
+- name: downloading lxc templates
+  shell: |
+    pveam download {{ proxmox_setup_lxc_templates_proxmox_storage }} {{ item }}
+  args:
+    executable: /bin/bash
+  loop: "{{ proxmox_setup_lxc_templates_images }}"
+  when: proxmox_setup_lxc_templates_images | default(false)

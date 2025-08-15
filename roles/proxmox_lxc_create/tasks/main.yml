@@ -1,0 +1,8 @@
+---
+
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_discover.yml
+
+- ansible.builtin.include_tasks: 01_create_lxc.yml
+  when: proxmox_lxc_destroy_existing or pvesh_result.stdout == ""

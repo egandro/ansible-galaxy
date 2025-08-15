@@ -1,0 +1,18 @@
+---
+
+- name: install acme plugin namecheap secret (temp file)
+  ansible.builtin.copy:
+    content: "NAMECHEAP_USERNAME={{ proxmox_setup_acme_namecheap_username }}\r\nNAMECHEAP_API_KEY={{ proxmox_setup_acme_namecheap_api_key }}\r\nNAMECHEAP_SOURCEIP={{ proxmox_setup_acme_namecheap_public_ip }}"
+    dest: /tmp/namecheap_dns_api
+    mode: '0600'
+
+- name: install acme plugin namecheap
+  ansible.builtin.shell: |
+    {{ proxmox_setup_acme_namecheap_command }} acme plugin add dns namecheap_plugin --validation-delay 90 --api namecheap --data /tmp/namecheap_dns_api
+  args:
+    executable: /bin/bash
+
+- name: remove acme plugin namecheap secret (temp file)
+  ansible.builtin.file:
+    path: /tmp/namecheap_dns_api
+    state: absent

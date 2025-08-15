@@ -1,0 +1,5 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 01_local_folder.yml
+  when: proxmox_setup_storage_type == "default"

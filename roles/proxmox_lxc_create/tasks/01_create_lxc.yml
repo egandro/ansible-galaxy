@@ -1,0 +1,93 @@
+---
+
+# https://pve.proxmox.com/pve-docs/pct.1.html
+
+# nest + fuse
+# https://forum.proxmox.com/threads/ubuntu-snaps-inside-lxc-container-on-proxmox.36463/#post-230060
+
+# rootfs
+# https://forum.proxmox.com/threads/how-to-create-a-container-from-command-line-pct-create.107304/
+
+- name: creating proxmox lxc
+  shell: |
+    SSH_KEY_FILE="/home/{{ ansible_user }}/.ssh/authorized_keys"
+
+    pct unlock {{ proxmox_lxc_vmid }} || true
+    pct destroy {{ proxmox_lxc_vmid }} --force 1 --purge 1 || true
+
+    pct create {{ proxmox_lxc_vmid }} {{ proxmox_lxc_storage }}:vztmpl/{{ proxmox_lxc_template }} \
+      --ostype {{ proxmox_lxc_ostype }} \
+      --hostname {{ proxmox_lxc_hostname }} \
+      --rootfs volume={{ proxmox_lxc_storage }}:{{ proxmox_lxc_disk_size }},mountoptions=noatime \
+      --ssh-public-keys "${SSH_KEY_FILE}" \
+      --features keyctl=1,nesting=1,fuse=1 # no idea if we really need this (looks like an ubuntu thing)
+  args:
+    executable: /bin/bash
+
+- name: set cores
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --cores {{ proxmox_lxc_cores }}
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_cores | default(false)
+
+- name: set memory
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --memory {{ proxmox_lxc_memory }}
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_memory | default(false)
+
+- name: set swap
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --swap {{ proxmox_lxc_swap_size }}
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_swap_size | default(false)
+
+- name: set onboot
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --onboot {{ proxmox_lxc_onboot }}
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_onboot | default(false)
+
+- name: mount points
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --mp{{ item.id }} {{ item.host_path }},mp={{ item.container_mp }}
+  args:
+    executable: /bin/bash
+  with_items: "{{ proxmox_lxc_mp }}"
+  when: proxmox_lxc_mp | default([])
+
+- name: networks
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --net{{ item.id }} {{ item.data }}
+  args:
+    executable: /bin/bash
+  with_items: "{{ proxmox_lxc_net }}"
+  when: proxmox_lxc_net | default([])
+
+- name: tags
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --tags "{{ proxmox_lxc_tags }}"
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_tags | default(false)
+
+- name: description
+  shell: |
+    pct set {{ proxmox_lxc_vmid }} --description '{{ proxmox_lxc_description }}'
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_description | default(false)
+
+
+# pitfall - a lxc might not start if a local mount point does not exists
+
+- name: start after creation
+  shell: |
+    pct start {{ proxmox_lxc_vmid }}
+  args:
+    executable: /bin/bash
+  when: proxmox_lxc_start_after_creation | default(false)

@@ -1,0 +1,9 @@
+---
+
+- name: destroy vm
+  shell: |
+    qm unlock {{ proxmox_vm_vmid }} || true
+    qm stop {{ proxmox_vm_vmid }} || true
+    qm destroy {{ proxmox_vm_vmid }} --destroy-unreferenced-disks 1 --purge 1 || true
+  args:
+    executable: /bin/bash

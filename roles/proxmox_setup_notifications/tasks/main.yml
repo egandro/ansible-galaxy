@@ -1,0 +1,10 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 01_set_config_dir.yml
+
+- ansible.builtin.include_tasks: 02_default_notifications.yml
+  when: (proxmox_setup_notifications_email | default(false)) and proxmox_setup_notifications_mode == 'default'
+
+- ansible.builtin.include_tasks: 03_error_only_notifications.yml
+  when: (proxmox_setup_notifications_email | default(false)) and proxmox_setup_notifications_mode == 'errors-only'

@@ -1,0 +1,15 @@
+---
+- name: gather ansible facts
+  ansible.builtin.setup:
+
+- name: checking for Proxmox installation
+  stat:
+    path: /etc/pve
+  register: pve_installed
+
+- name: checking kernel
+  shell: |
+    uname -r
+  args:
+    executable: /bin/bash
+  register: kernel_release

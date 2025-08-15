@@ -1,0 +1,58 @@
+---
+
+# https://www.howtoforge.com/tutorial/configure-postfix-to-use-gmail-as-a-mail-relay/
+
+- name: apt-get dist-upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: true
+
+- name: install postfix
+  shell: |
+    echo "postfix postfix/mailname string {{ service_postfix_mailname }}" | debconf-set-selections
+    echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections
+    DEBIAN_FRONTEND=noninteractive
+    apt-get install -y ssl-cert postfix
+  args:
+    executable: /bin/bash
+
+- name: install mailutils
+  ansible.builtin.package:
+    name: mailutils
+    state: present
+
+- name: install /etc/postfix/sasl_passwd
+  ansible.builtin.copy:
+    content: "[{{ service_postfix_relay_server }}]:{{ service_postfix_relay_port }}    {{ service_postfix_relay_user }}:{{ service_postfix_relay_password }}"
+    dest: /etc/postfix/sasl_passwd
+    mode: '0600'
+    #backup: true
+
+- name: fixing defaults in /etc/postfix/main.cf
+  ansible.builtin.lineinfile:
+    dest=/etc/postfix/main.cf
+    regexp="^relayhost\s*=\s*$"
+    line="#relayhost ="
+    state=present
+
+- name: configuration block in /etc/postfix/main.cf
+  ansible.builtin.blockinfile:
+    path: /etc/postfix/main.cf
+    block: |
+      relayhost = [{{ service_postfix_relay_server }}]:{{ service_postfix_relay_port }}
+      smtp_use_tls = yes
+      smtp_sasl_auth_enable = yes
+      smtp_sasl_security_options =
+      smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+      smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+
+- name: process password file /etc/postfix/sasl_passwd
+  shell: |
+    /usr/sbin/postmap /etc/postfix/sasl_passwd
+  args:
+    executable: /bin/bash
+
+- name: restart postfix
+  service:
+    name: postfix
+    state: restarted

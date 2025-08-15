@@ -1,0 +1,36 @@
+# added by ansible
+
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+
+auto {{ ansible_default_ipv4.interface }}
+#real IP address
+iface {{ ansible_default_ipv4.interface }} inet static
+{% if proxmox_install_bridge_wifi_name is defined and proxmox_install_bridge_wifi_password is defined %}
+  wpa-ssid {{ proxmox_install_bridge_wifi_name }}
+  wpa-psk {{ proxmox_install_bridge_wifi_password }}
+{% endif %}
+  address {{ proxmox_install_bridge_ip4 }}
+  netmask {{ proxmox_install_bridge_netmask4 }}
+  gateway {{ proxmox_install_bridge_gateway4 }}
+{% if proxmox_install_bridge_route4 is defined %}
+  {{  proxmox_install_bridge_route4 }} {{ ansible_default_ipv4.interface }}
+{% endif %}
+
+auto {{ proxmox_install_bridge_name }}
+iface {{ proxmox_install_bridge_name }} inet static
+  address {{ proxmox_install_bridge_nat_ip4 }}
+  netmask {{ proxmox_install_bridge_nat_netmask4 }}
+  bridge-ports none
+  bridge-stp off
+  bridge-fd 0
+{% if proxmox_install_bridge_vlan_aware is defined and proxmox_install_bridge_vlan_aware %}
+  bridge-vlan-aware yes
+  bridge-vids 2-4094
+{% endif %}
+
+  post-up   echo 1 > /proc/sys/net/ipv4/ip_forward
+  post-up   iptables -t nat -A POSTROUTING -s '{{ proxmox_install_bridge_nat_masq }}' -o {{ ansible_default_ipv4.interface }} -j MASQUERADE
+  post-down iptables -t nat -D POSTROUTING -s '{{ proxmox_install_bridge_nat_masq }}' -o {{ ansible_default_ipv4.interface }} -j MASQUERADE

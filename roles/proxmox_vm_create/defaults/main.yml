@@ -1,0 +1,31 @@
+---
+proxmox_vm_storage: local
+proxmox_vm_format: qcow2
+proxmox_vm_onboot: true
+proxmox_vm_destroy_existing: true
+proxmox_vm_name: newvm
+#proxmox_vm_vmid: 1000
+#proxmox_vm_ip4: 1.2.3.4 # wait for ssh
+#proxmox_vm_template_id: 1234
+proxmox_vm_start_after_creation: false
+proxmox_vm_reboot_after_cloud_init: false
+proxmox_vm_sleep_time_after_creation: 30
+#proxmox_vm_tags: foo,bar
+#proxmox_vm_description: "# Server URL%0A### https://www.example.com" # %0A is newline
+
+#proxmox_vm_disk_size: 20G
+#proxmox_vm_memory: 8192
+#proxmox_vm_cores: 4
+
+#proxmox_vm_net:
+#   - id: 0
+#     data: virtio,bridge=vmbr0
+
+# # cloud init
+# proxmox_vm_ipconfig:
+#   - id: 0
+#     data: ip=192.168.189.1/24,gw=192.168.189.10
+
+# # cloud init
+# proxmox_vm_searchdomain: example.com
+# proxmox_vm_nameserver: 8.8.8.8

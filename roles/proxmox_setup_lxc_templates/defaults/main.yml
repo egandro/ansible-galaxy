@@ -1,0 +1,6 @@
+---
+proxmox_setup_lxc_templates_proxmox_storage: local
+# check here what is available: http://download.proxmox.com/images/system/
+# proxmox_setup_lxc_templates_images:
+#   - debian-12-standard_12.2-1_amd64.tar.zst
+#   - ubuntu-22.10-standard_22.10-1_amd64.tar.zst
