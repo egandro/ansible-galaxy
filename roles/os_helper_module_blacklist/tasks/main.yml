@@ -6,11 +6,11 @@
   args:
     executable: /bin/bash
   with_items: "{{ os_helper_module_blacklist_modules }}"
-  when: os_helper_module_blacklist_modules | default([])
+  when: (os_helper_module_blacklist_modules | default([])) | length > 0
 
 - name: update initramfs
   shell: |
     update-initramfs -u -k all
   args:
     executable: /bin/bash
-  when: os_helper_module_blacklist_modules | default([])
+  when: (os_helper_module_blacklist_modules | default([])) | length > 0
