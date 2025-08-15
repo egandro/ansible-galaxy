@@ -42,7 +42,7 @@ ansible-galaxy init --init-path roles roleXXX
 #  ansible-galaxy install -r collections/requirements.yml --force
 ---
 collections:
-  - name: https://github.com/egandro/common-ansible.git
+  - name: https://github.com/egandro/ansible-galaxy.git
     type: git
     version: main
 ```
