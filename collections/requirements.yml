@@ -1,0 +1,15 @@
+collections:
+  - name: community.general
+  # - name: kubernetes.core
+  - name: community.hrobot # for hetzner
+  #- name: ansible.posix
+  #- name: ansible.utils
+
+  # # sample for user collection (bunch of roles you create to reuse)
+  # - name: https://github.com/egandro/ansible-tutorial-collection.git
+  #   type: git
+  #   version: main
+
+  # - name: https://github.com/egandro/k3s-ansible.git
+  #   type: git
+  #   version: galaxy
