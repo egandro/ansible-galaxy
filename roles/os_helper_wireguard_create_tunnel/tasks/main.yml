@@ -1,0 +1,38 @@
+---
+
+- name: install jq
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: installing helper script to create a tunnel
+  ansible.builtin.template:
+    src:  templates/create-wireguard-tunnel.sh
+    dest: /usr/local/bin/create-wireguard-tunnel.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: create wireguard tunnel
+  shell: |
+    ALLOWED_IPS=$(echo -n "{{ os_helper_wireguard_create_tunnel_allowed_ips }}" | sed -e "s/'/\"/g")
+
+    /usr/local/bin/create-wireguard-tunnel.sh \
+      --url '{{ os_helper_wireguard_create_tunnel_url }}' \
+      -u '{{ os_helper_wireguard_create_tunnel_user }}' \
+      -p '{{ os_helper_wireguard_create_tunnel_password }}' \
+      --profile '{{ os_helper_wireguard_create_tunnel_profile }}' \
+      --email '{{ os_helper_wireguard_create_tunnel_email }}' \
+      -a "${ALLOWED_IPS}" \
+      -o '{{ os_helper_wireguard_create_tunnel_output_file }}'
+  args:
+    executable: /bin/bash
+
+- name: enable wg0
+  shell: |
+    # https://www.ivpn.net/knowledgebase/linux/linux-autostart-wireguard-in-systemd/
+    systemctl enable wg-quick@wg0.service || true
+    systemctl daemon-reload || true
+    systemctl start wg-quick@wg0 || true
+  args:
+    executable: /bin/bash
