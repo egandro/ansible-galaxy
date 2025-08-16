@@ -1,0 +1,64 @@
+---
+
+# https://github.com/ngoduykhanh/wireguard-ui
+
+- name: install wireguard
+  ansible.builtin.package:
+    name: wireguard
+    state: present
+
+- name: ensure /var/lib/docker-compose/wireguard-ui dir exists
+  file:
+    path: "/var/lib/docker-compose/wireguard-ui"
+    state: directory
+    owner: root
+    group: root
+
+- name: installing docker compose file
+  ansible.builtin.template:
+    src:  templates/docker-compose.yml
+    dest: /var/lib/docker-compose/wireguard-ui/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0600'
+    backup: true
+
+- name: stopping service (if it is running)
+  shell: |
+    cd /var/lib/docker-compose/wireguard-ui
+    docker compose stop || true
+  args:
+    executable: /bin/bash
+
+- name: pull latest image
+  shell: |
+    cd /var/lib/docker-compose/wireguard-ui
+    docker compose pull
+  args:
+    executable: /bin/bash
+
+- name: start wireguard-ui
+  shell: |
+    cd /var/lib/docker-compose/wireguard-ui
+    docker compose up -d
+  args:
+    executable: /bin/bash
+
+- name: wireguard-ui web website
+  ansible.builtin.debug:
+    msg: "wireguard-ui is available at: http://{{ ansible_host }}:{{ docker_service_wireguard_ui_port }}"
+  when: docker_service_wireguard_ui_web_bind_address == '0.0.0.0'
+
+- name: wireguard-ui web website
+  ansible.builtin.debug:
+    msg: "wireguard-ui is available at: http://{{ docker_service_wireguard_ui_web_bind_address }}:{{ docker_service_wireguard_ui_port }}"
+  when: docker_service_wireguard_ui_web_bind_address != '0.0.0.0'
+
+- name: enable wg0
+  shell: |
+    # https://www.ivpn.net/knowledgebase/linux/linux-autostart-wireguard-in-systemd/
+    systemctl enable wg-quick@wg0.service || true
+    systemctl daemon-reload || true
+    systemctl start wg-quick@wg0 || true
+  args:
+    executable: /bin/bash

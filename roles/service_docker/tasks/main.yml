@@ -1,0 +1,58 @@
+---
+
+# https://docs.docker.com/engine/install/debian/
+# added "--batch --yes" to gpg
+
+- name: install gpg
+  ansible.builtin.package:
+    name: gpg
+    state: present
+
+- name: add docker's official GPG key
+  shell: |
+    apt-get update
+    apt-get install -y ca-certificates curl gnupg
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+  args:
+    executable: /bin/bash
+
+- name: add the repository to apt sources
+  shell: |
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    apt-get update
+  args:
+    executable: /bin/bash
+
+- name: install docker
+  shell: |
+    apt-get install -y \
+      docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  args:
+    executable: /bin/bash
+
+- name: add the ansible user to the docker group
+  ansible.builtin.user:
+    name:  "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: installing docker daemon.json file
+  ansible.builtin.template:
+    src:  templates/daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+  when: service_docker_registry_cache_url | default("") != ""
+
+- name: restart docker (if we installed a registry cache)
+  service:
+    name: docker
+    state: restarted
+  when: service_docker_registry_cache_url | default("") != ""
