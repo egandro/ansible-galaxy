@@ -22,4 +22,5 @@
   when: postfix_master_cf.stat.exists
 
 - ansible.builtin.include_tasks: 05_pveproxy.yml
-  when: proxmox_setup_secure_system_pveproxy_listen_ip | default(false)
+  when: (proxmox_setup_secure_system_pveproxy_listen_ip | default('')) | length > 0
+
