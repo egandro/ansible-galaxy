@@ -48,17 +48,17 @@ service_dnsmasq_dhcp_range4_end:  192.168.1.150
 # service_dnsmasq_dhcp_range_cluster_ip6_end_postfix: "ff"
 
 
-service_dnsmasq_static_host_entries:
+#service_dnsmasq_static_host_entries:
   # - ip: 192.168.1.100
   #   name: www.{{ service_dnsmasq_domain_name }} www
 
-service_dnsmasq_pinned_ips:
+#service_dnsmasq_pinned_ips:
   # mac,ip
   #- 00:11:22:33:44:55:66,192.168.1.2
   # mac,name,ip
   #- 00:11:22:33:44:55:66,foo,192.168.1.2
 
-service_dnsmasq_c_names:
+#service_dnsmasq_c_names:
   #- router.{{ service_dnsmasq_domain_name }},{{ service_dnsmasq_domain_name }}
 
 ## used for *.domain.tld
