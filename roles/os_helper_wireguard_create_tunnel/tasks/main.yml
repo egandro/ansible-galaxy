@@ -15,7 +15,7 @@
 
 - name: create wireguard tunnel
   shell: |
-    ALLOWED_IPS=$(echo -n '{{ allowed_ips | to_json }}')
+    ALLOWED_IPS=$(echo -n '{{ os_helper_wireguard_create_tunnel_allowed_ips | to_json }}')
 
     echo /usr/local/bin/create-wireguard-tunnel.sh \
       --url '{{ os_helper_wireguard_create_tunnel_url }}' \
