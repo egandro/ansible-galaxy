@@ -1,0 +1,22 @@
+---
+
+- name: update nameserver in resolv.conf
+  lineinfile:
+    dest: /etc/resolv.conf
+    regexp: '^nameserver.*$'
+    line: "nameserver {{ service_dnsmasq_server_ip4 }}"
+    state: present
+
+- name: update search in resolv.conf
+  lineinfile:
+    dest: /etc/resolv.conf
+    regexp: '^search.*$'
+    line: "search {{ service_dnsmasq_domain_name }}"
+    state: present
+
+- name: update domain in resolv.conf
+  lineinfile:
+    dest: /etc/resolv.conf
+    regexp: '^domain.*$'
+    line: "domain {{ service_dnsmasq_domain_name }}"
+    state: present

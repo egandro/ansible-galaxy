@@ -1,0 +1,10 @@
+---
+
+- name: generate /etc/dnsmasq.d/main-ipv6.conf
+  ansible.builtin.template:
+    src:  templates/main-ipv6.conf
+    dest: /etc/dnsmasq.d/main-ipv6.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true

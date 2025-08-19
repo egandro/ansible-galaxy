@@ -1,0 +1,24 @@
+---
+- ansible.builtin.setup:
+
+- ansible.builtin.include_tasks: 00_disable_systemd-resolved.yml
+
+- ansible.builtin.include_tasks: 01_install_packages.yml
+
+- ansible.builtin.include_tasks: 02_install_basic.yml
+  when: service_dnsmasq_type == 'basic'
+
+- ansible.builtin.include_tasks: 03_install_ipv6.yml
+  when: service_dnsmasq_type == 'ipv6'
+
+- ansible.builtin.include_tasks: 04_update_etc_files.yml
+  when: service_dnsmasq_type == 'basic'
+
+- ansible.builtin.include_tasks: 05_static_etc_host_files.yml
+
+- ansible.builtin.include_tasks: 10_install_common_files.yml
+
+- ansible.builtin.include_tasks: 11_install_pxe_netboot_xyz.yml
+  when: service_dnsmasq_dhcp_netboot_xyz_ip | default(false)
+
+- ansible.builtin.include_tasks: 20_restart_dnsmasq.yml

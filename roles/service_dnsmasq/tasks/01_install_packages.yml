@@ -1,0 +1,10 @@
+---
+
+- name: install packages
+  ansible.builtin.include_role:
+    name: egandro.common_ansible.os_helper_install_packages
+  vars:
+    os_helper_install_packages:
+      - net-tools
+      - dnsutils
+      - dnsmasq

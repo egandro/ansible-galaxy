@@ -1,0 +1,11 @@
+---
+
+- name: add static entries to /etc/hosts
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    block: |
+      {% for item in service_dnsmasq_static_host_entries -%}
+      {{ item.ip }} {{ item.name }}
+      {% endfor %}
+    marker: "# {mark} ansible section - static entries also used by dnsmasq"
+  when: service_dnsmasq_static_host_entries is defined and service_dnsmasq_static_host_entries

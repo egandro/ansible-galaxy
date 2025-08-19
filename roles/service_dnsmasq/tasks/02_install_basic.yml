@@ -1,0 +1,10 @@
+---
+
+- name: generate /etc/dnsmasq.d/main-basic.conf
+  ansible.builtin.template:
+    src:  templates/main-basic.conf
+    dest: /etc/dnsmasq.d/main-basic.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true

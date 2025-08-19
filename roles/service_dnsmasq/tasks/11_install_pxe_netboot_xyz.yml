@@ -1,0 +1,9 @@
+---
+
+- name: generate /etc/dnsmasq.d/pxe.conf
+  template:
+    src:  templates/pxe.conf
+    dest: /etc/dnsmasq.d/pxe.conf
+    owner: root
+    group: root
+    mode: '0644'

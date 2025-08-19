@@ -1,0 +1,7 @@
+---
+
+- name: start and enable dnsmasq
+  ansible.builtin.systemd:
+    state: restarted
+    enabled: true
+    name: dnsmasq

@@ -1,0 +1,58 @@
+---
+
+service_dnsmasq_type: basic
+#service_dnsmasq_interface: vmbr0
+service_dnsmasq_domain_name: example.com
+service_dnsmasq_upstream_dns: 8.8.8.8
+service_dnsmasq_server_ip4: 192.168.1.190
+service_dnsmasq_dhcp_gateway4: 192.168.1.1
+service_dnsmasq_dhcp_netmask4: 255.255.255.0
+
+# service_dnsmasq_dhcp_netboot_xyz_ip: 1.2.3.4
+
+service_dnsmasq_dhcp_lease_time: 12h
+
+service_dnsmasq_dhcp_range4_start: 192.168.1.20
+service_dnsmasq_dhcp_range4_end:  192.168.1.150
+
+#service_dnsmasq_dhcp_range6_start: fd3c:ba45::02
+#service_dnsmasq_dhcp_range6_end: fd3c:ba45::ff
+
+# # cluster ranges only for ipv6 config
+# # you need unicast macs - https://en.wikipedia.org/wiki/MAC_address#Unicast_vs._multicast_(I/G_bit)
+# service_dnsmasq_dhcp_range_cluster:
+#   - tag: foo
+#     mac_prefix: "14:22:33:10"
+#     ip4_prefix: "10.31.10"
+#     ip6_prefix: "ab:de:ef:10"
+#   - tag: bar
+#     mac_prefix: "14:22:33:20"
+#     ip4_prefix: "10.31.20"
+#     ip6_prefix: "ab:de:ef:20"
+# service_dnsmasq_dhcp_range_cluster_ip4_start_postfix: "100"
+# service_dnsmasq_dhcp_range_cluster_ip4_end_postfix: "150"
+# service_dnsmasq_dhcp_range_cluster_ip6_start_postfix: "02"
+# service_dnsmasq_dhcp_range_cluster_ip6_end_postfix: "ff"
+
+
+service_dnsmasq_static_host_entries:
+  # - ip: 192.168.1.100
+  #   name: www.{{ service_dnsmasq_domain_name }} www
+
+service_dnsmasq_pinned_ips:
+  # mac,ip
+  #- 00:11:22:33:44:55:66,192.168.1.2
+  # mac,name,ip
+  #- 00:11:22:33:44:55:66,foo,192.168.1.2
+
+service_dnsmasq_c_names:
+  #- router.{{ service_dnsmasq_domain_name }},{{ service_dnsmasq_domain_name }}
+
+## used for *.domain.tld
+service_dnsmasq_address:
+  #- /domain.tld/192.168.0.1
+
+
+## TODO
+#wildcard
+#address=/mydomain.com/192.168.0.10

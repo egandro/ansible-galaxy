@@ -1,0 +1,36 @@
+---
+- name: ensure /etc/dnsmasq.d/pinned-ips.conf exists
+  ansible.builtin.file:
+    path: /etc/dnsmasq.d/pinned-ips.conf
+    state: touch
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: add pined IPs in /etc/dnsmasq.d/pinned-ips.conf
+  ansible.builtin.blockinfile:
+    path: /etc/dnsmasq.d/pinned-ips.conf
+    block: |
+      {% for item in service_dnsmasq_pinned_ips -%}
+      dhcp-host={{ item }}
+      {% endfor %}
+    marker: "# {mark} ansible section - pinned ips"
+  when: service_dnsmasq_pinned_ips is defined and service_dnsmasq_pinned_ips
+
+- name: ensure /etc/dnsmasq.d/cnames.conf exists
+  ansible.builtin.file:
+    path: /etc/dnsmasq.d/cnames.conf
+    state: touch
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: add static entries in /etc/dnsmasq.d/cnames.conf
+  ansible.builtin.blockinfile:
+    path: /etc/dnsmasq.d/cnames.conf
+    block: |
+      {% for item in service_dnsmasq_c_names -%}
+      cname={{ item }}
+      {% endfor %}
+    marker: "# {mark} ansible section - cnames"
+  when: service_dnsmasq_c_names is defined and service_dnsmasq_c_names
