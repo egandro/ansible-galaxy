@@ -33,7 +33,7 @@ service_dnsmasq_dhcp_range4_end:  192.168.1.150
 
 # cluster ranges only for ipv6 config
 # # you need unicast macs - https://en.wikipedia.org/wiki/MAC_address#Unicast_vs._multicast_(I/G_bit)
-service_dnsmasq_dhcp_range_cluster:
+# service_dnsmasq_dhcp_range_cluster:
 #   - tag: foo
 #     mac_prefix: "14:22:33:10"
 #     ip4_prefix: "10.31.10"
@@ -62,7 +62,7 @@ service_dnsmasq_c_names:
   #- router.{{ service_dnsmasq_domain_name }},{{ service_dnsmasq_domain_name }}
 
 ## used for *.domain.tld
-service_dnsmasq_address:
+#service_dnsmasq_address:
   #- /domain.tld/192.168.0.1
 
 ```
