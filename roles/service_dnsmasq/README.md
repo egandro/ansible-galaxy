@@ -95,6 +95,6 @@ Example Playbook
     - service_dnsmasq_c_names:
       # - router.{{ service_dnsmasq_domain_name }},{{ service_dnsmasq_domain_name }}
   roles:
-    - role: egandro.common_ansible.service_dnsmasq
+    - role: egandro.ansible_galaxy.service_dnsmasq
       become: true
 ```
