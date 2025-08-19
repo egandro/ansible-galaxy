@@ -20,6 +20,7 @@ docker_service_wireguard_ui_port: 5000
 docker_service_wireguard_ui_wireguard_port: 51820
 #docker_service_wireguard_ui_admin_user: admin
 #docker_service_wireguard_ui_admin_password: admin
+docker_service_wireguard_ui_mtu: 1450
 ```
 
 Example Playbook
