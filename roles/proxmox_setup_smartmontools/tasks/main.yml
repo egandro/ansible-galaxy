@@ -2,4 +2,4 @@
 - ansible.builtin.setup:
 
 - ansible.builtin.include_tasks: 01_update_smartd_conf.yml
-  when: proxmox_setup_smartmontools_email | default(false)
+  when: (proxmox_setup_smartmontools_email | default('')) | length > 0
