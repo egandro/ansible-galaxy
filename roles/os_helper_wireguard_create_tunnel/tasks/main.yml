@@ -15,16 +15,14 @@
 
 - name: create wireguard tunnel
   shell: |
-    ALLOWED_IPS=$(echo -n '{{ os_helper_wireguard_create_tunnel_allowed_ips | to_json }}')
-
-    echo /usr/local/bin/create-wireguard-tunnel.sh \
+    /usr/local/bin/create-wireguard-tunnel.sh \
       --url '{{ os_helper_wireguard_create_tunnel_url }}' \
       -u '{{ os_helper_wireguard_create_tunnel_user }}' \
       -p '{{ os_helper_wireguard_create_tunnel_password }}' \
       --profile '{{ os_helper_wireguard_create_tunnel_profile }}' \
       --email '{{ os_helper_wireguard_create_tunnel_email }}' \
-      -a "${ALLOWED_IPS}" \
-      -o '{{ os_helper_wireguard_create_tunnel_output_file }}' >>/tmp/wg-create
+      -a '{{ os_helper_wireguard_create_tunnel_allowed_ips | to_json }}' \
+      -o '{{ os_helper_wireguard_create_tunnel_output_file }}'
   args:
     executable: /bin/bash
 
