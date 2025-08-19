@@ -24,7 +24,7 @@ services:
       - WGUI_SERVER_POST_DOWN_SCRIPT={{ docker_service_wireguard_ui_post_down_script }}
       - WGUI_USERNAME={{ docker_service_wireguard_ui_admin_user }}
       - WGUI_PASSWORD={{ docker_service_wireguard_ui_admin_password }}
-      - WGUI_DEFAULT_CLIENT_ALLOWED_IPS={{ docker_service_wireguard_ui_allowed_ips }}
+      - WGUI_DEFAULT_CLIENT_ALLOWED_IPS="{% for ip in docker_service_wireguard_ui_allowed_ips %}\"{{ ip }}\"{% if not loop.last %},{% endif %}{% endfor %}"
       - WGUI_DEFAULT_CLIENT_USE_SERVER_DNS=false
       - WGUI_SERVER_LISTEN_PORT={{ docker_service_wireguard_ui_wireguard_port }}
     logging:

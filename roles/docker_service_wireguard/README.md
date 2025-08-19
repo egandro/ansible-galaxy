@@ -10,6 +10,9 @@ Role Variables
 docker_service_wireguard_ui_bind_address: 0.0.0.0
 docker_service_wireguard_ui_endpoint_address: "{{ ansible_host }}"
 docker_service_wireguard_ui_interface_address: 10.252.1.0/24
+docker_service_wireguard_ui_allowed_ips:
+  - 10.90.0.0/21
+  - 10.252.1.0/24
 docker_service_wireguard_ui_post_up_script: ""
 docker_service_wireguard_ui_post_down_script: ""
 docker_service_wireguard_ui_dns: 1.1.1.1
