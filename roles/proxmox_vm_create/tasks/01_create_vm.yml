@@ -22,28 +22,28 @@
     qm disk resize {{ proxmox_vm_vmid }} scsi0 {{ proxmox_vm_disk_size }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_disk_size | default(false)
+  when: (proxmox_vm_disk_size | default('')) | length > 0
 
 - name: set cores
   shell: |
     qm set {{ proxmox_vm_vmid }} --cores {{ proxmox_vm_cores }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_cores | default(false)
+  when: (proxmox_vm_cores | default('')) | length > 0
 
 - name: set memory
   shell: |
     qm set {{ proxmox_vm_vmid }} --memory {{ proxmox_vm_memory }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_memory | default(false)
+  when: (proxmox_vm_memory | default('')) | length > 0
 
 - name: set onboot
   shell: |
     qm set {{ proxmox_vm_vmid }} --onboot {{ proxmox_vm_onboot }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_onboot | default(false)
+  when: (proxmox_vm_onboot | default('')) | length > 0
 
 - name: networks
   shell: |
@@ -53,7 +53,7 @@
   with_items: "{{ proxmox_vm_net }}"
   loop_control:
     loop_var: internal_item
-  when: proxmox_vm_net | default([])
+  when: (proxmox_vm_net | default([])) | length > 0
 
 - name: cloud image ifconfig
   shell: |
@@ -63,35 +63,35 @@
   with_items: "{{ proxmox_vm_ipconfig }}"
   loop_control:
     loop_var: internal_item
-  when: proxmox_vm_ipconfig | default([])
+  when: (proxmox_vm_ipconfig | default([])) | length > 0
 
 - name: cloud image searchdomain
   shell: |
     qm set {{ proxmox_vm_vmid }} --searchdomain {{ proxmox_vm_searchdomain }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_searchdomain | default(false)
+  when: (proxmox_vm_searchdomain | default('')) | length > 0
 
 - name: cloud image nameserver
   shell: |
     qm set {{ proxmox_vm_vmid }} --nameserver {{ proxmox_vm_nameserver }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_nameserver | default(false)
+  when: (proxmox_vm_nameserver | default('')) | length > 0
 
 - name: tags
   shell: |
     qm set {{ proxmox_vm_vmid }} --tags "{{ proxmox_vm_tags }}"
   args:
     executable: /bin/bash
-  when: proxmox_vm_tags | default(false)
+  when: (proxmox_vm_tags | default('')) | length > 0
 
 - name: description
   shell: |
     qm set {{ proxmox_vm_vmid }} --description '{{ proxmox_vm_description }}'
   args:
     executable: /bin/bash
-  when: proxmox_vm_description | default(false)
+  when: (proxmox_vm_description | default('')) | length > 0
 
 # We need to run UTC - always :)
 # This needs to be UTC if we communicate linux <-> linux out of the host
