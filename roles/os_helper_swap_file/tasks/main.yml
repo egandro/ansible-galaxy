@@ -1,0 +1,30 @@
+---
+# idea from https://github.com/Cretezy/Swap/blob/master/swap.sh
+
+- name: check if /swapfile exists
+  stat:
+    path: /swapfile
+  register: stat_result
+
+- name: creating swap file (if not present)
+  shell: |
+    SWAP_SIZE="{{ os_helper_swap_file_size }}"
+    SWAP_PATH="/swapfile"
+
+    if test -f "${SWAP_PATH}"; then
+        swapoff "${SWAP_PATH}" || true
+        rm -f "${SWAP_PATH}" || true
+    else
+        echo "${SWAP_PATH}   none    swap    sw    0   0" | tee /etc/fstab -a
+    fi
+
+    fallocate -l ${SWAP_SIZE} "${SWAP_PATH}"
+    chown root:root "${SWAP_PATH}"
+    chmod 600 "${SWAP_PATH}"
+    mkswap "${SWAP_PATH}"
+    swapon "${SWAP_PATH}"
+
+  args:
+    executable: /bin/bash
+
+  when: not stat_result.stat.exists
