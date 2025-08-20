@@ -29,7 +29,7 @@
     qm set {{ proxmox_vm_vmid }} --cores {{ proxmox_vm_cores }}
   args:
     executable: /bin/bash
-  when: (proxmox_vm_cores | default('')) | length > 0
+  when: proxmox_vm_cores is defined and proxmox_vm_cores | int > 0
 
 - name: set memory
   shell: |
@@ -43,7 +43,7 @@
     qm set {{ proxmox_vm_vmid }} --onboot {{ proxmox_vm_onboot }}
   args:
     executable: /bin/bash
-  when: (proxmox_vm_onboot | default('')) | length > 0
+  when: proxmox_vm_onboot is defined
 
 - name: networks
   shell: |
