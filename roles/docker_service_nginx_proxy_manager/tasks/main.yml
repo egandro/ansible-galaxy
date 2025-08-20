@@ -1,0 +1,73 @@
+---
+# https://nginxproxymanager.com/setup/#running-the-app
+
+- name: ensure /var/lib/docker-compose/nginx-proxy-manager dir exists
+  file:
+    path: "/var/lib/docker-compose/nginx-proxy-manager"
+    state: directory
+    owner: root
+    group: root
+
+- name: ensure /var/lib/docker-compose/nginx-proxy-manager/letsencrypt dir exists
+  file:
+    path: "/var/lib/docker-compose/nginx-proxy-manager/letsencrypt"
+    state: directory
+    owner: root
+    group: root
+    mode: "0777"
+
+- name: ensure /var/lib/docker-compose/nginx-proxy-manager/data dir exists
+  file:
+    path: "/var/lib/docker-compose/nginx-proxy-manager/data"
+    state: directory
+    owner: root
+    group: root
+    mode: "0777"
+
+- name: installing docker compose file
+  ansible.builtin.template:
+    src: templates/docker-compose.yml
+    dest: /var/lib/docker-compose/nginx-proxy-manager/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+    backup: true
+
+- name: installing export-certs.sh
+  ansible.builtin.template:
+    src: templates/export-certs.sh
+    dest: /var/lib/docker-compose/nginx-proxy-manager/export-certs.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: stopping service (if it is running)
+  shell: |
+    cd /var/lib/docker-compose/nginx-proxy-manager
+    docker compose stop || true
+  args:
+    executable: /bin/bash
+
+- name: pull latest image
+  shell: |
+    cd /var/lib/docker-compose/nginx-proxy-manager
+    docker compose pull
+  args:
+    executable: /bin/bash
+
+- name: start nginx-proxy-manager
+  shell: |
+    cd /var/lib/docker-compose/nginx-proxy-manager
+    docker compose up -d
+  args:
+    executable: /bin/bash
+
+- name: nginx-proxy-manager web website (secured)
+  ansible.builtin.debug:
+    msg: "nginx-proxy-manager web is available at: http://{{docker_service_nginx_proxy_manager_bind_addr}}:81"
+  when: docker_service_nginx_proxy_manager_bind_addr is defined and docker_service_nginx_proxy_manager_bind_addr is not none
+
+- name: nginx-proxy-manager web website (relaxed security)
+  ansible.builtin.debug:
+    msg: "nginx-proxy-manager web is available at: http://{{ ansible_host }}:81 (default credentials: admin@example.com/changeme)"
+  when: docker_service_nginx_proxy_manager_bind_addr is not defined or docker_service_nginx_proxy_manager_bind_addr is none

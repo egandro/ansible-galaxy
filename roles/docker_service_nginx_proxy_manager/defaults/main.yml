@@ -1,0 +1,7 @@
+---
+# bind the 81 port only to 172.17.0.1
+#  forward with:
+#    ssh -L 8008:172.17.0.1:81 ansible@dockerserver
+#      -N not execute command
+#      -f go in background
+docker_service_nginx_proxy_manager_bind_addr: 127.0.0.1

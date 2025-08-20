@@ -1,0 +1,31 @@
+# https://nginxproxymanager.com/setup/#running-the-app
+
+---
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: always
+    ports:
+      # These ports are in format <host-port>:<container-port>
+      - '80:80' # Public HTTP Port
+      - '443:443' # Public HTTPS Port
+{% if docker_service_nginx_proxy_manager_bind_addr is defined and docker_service_nginx_proxy_manager_bind_addr is not none %}
+      - '{{ docker_service_nginx_proxy_manager_bind_addr }}:81:81' # Admin Web Port
+{% else %}
+      - '81:81' # Admin Web Port (relaxed security)
+{% endif %}
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+
+    # Uncomment the next line if you uncomment anything in the section
+    # environment:
+      # Uncomment this if you want to change the location of
+      # the SQLite DB file within the container
+      # DB_SQLITE_FILE: "/data/database.sqlite"
+
+      # Uncomment this if IPv6 is not enabled on your host
+      # DISABLE_IPV6: 'true'
+
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
