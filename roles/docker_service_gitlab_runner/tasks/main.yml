@@ -93,7 +93,7 @@
     owner: root
     group: root
     mode: "0600"
-  when: docker_service_gitlab_runner_concurrency | default (false)
+  when: docker_service_gitlab_runner_concurrency is defined
 
 - name: start gitlab runner
   shell: |
