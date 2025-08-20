@@ -1,0 +1,11 @@
+---
+#docker_service_gitlab_runner_api_username: root
+#docker_service_gitlab_runner_api_password: Secret!123
+#docker_service_gitlab_runner_gitlab_url: https://gitlab.example.com
+docker_service_gitlab_runner_name: default-runner
+docker_service_gitlab_runner_privileged: false
+docker_service_gitlab_runner_concurrency: 1
+docker_service_gitlab_runner_request_concurrency: 0
+docker_service_gitlab_runner_docker_image: docker:27-dind
+docker_service_gitlab_runner_delete_config_dir: false
+#docker_service_gitlab_runner_registry_cache_url: http://registry-cache.example.com

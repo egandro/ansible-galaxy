@@ -1,0 +1,69 @@
+---
+
+# gitlab/gitlab-runner
+
+services:
+  dind:
+    image: docker:27-dind
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+    restart: always
+    #network_mode: host
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - /etc/resolv.conf:/etc/resolv.conf:z
+    command:
+      - --storage-driver=overlay2
+{% if docker_service_gitlab_runner_registry_cache_url %}
+      - --registry-mirror={{ docker_service_gitlab_runner_registry_cache_url }}
+{% endif %}
+
+  runner:
+    restart: always
+    image:  registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+    depends_on:
+      - dind
+    environment:
+      - DOCKER_HOST=tcp://dind:2375
+    volumes:
+      - ./config:/etc/gitlab-runner:z
+
+  register-runner:
+    restart: 'no'
+    image: registry.gitlab.com/gitlab-org/gitlab-runner:alpine
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+    depends_on:
+      - dind
+    environment:
+      - CI_SERVER_URL={{ docker_service_gitlab_runner_gitlab_url }}
+      - REGISTRATION_TOKEN={{ registration_token }}
+    command:
+      - register
+      - --non-interactive
+      - --locked=false
+      - --name="{{ docker_service_gitlab_runner_name }}"
+      - --request-concurrency={{ docker_service_gitlab_runner_request_concurrency }}
+      - --executor=docker
+      - --docker-image={{ docker_service_gitlab_runner_docker_image }}
+      - --docker-volumes=/var/run/docker.sock:/var/run/docker.sock
+{% if docker_service_gitlab_runner_privileged %}
+      - --docker-privileged
+{% endif %}
+
+    volumes:
+      - ./config:/etc/gitlab-runner:z
+
+# keep the config even after deletion
+# volumes:
+#   config:

@@ -1,0 +1,103 @@
+---
+# # this is super stupid
+# # TODO: find out if a runner with the given name already exists and then do nothing
+# # - https://docs.gitlab.com/ee/api/runners.html
+
+# - name: create registration token (this can take some time)
+#   command: "/var/lib/docker-compose/gitlab/create_registration_token.sh"
+#   register: registration_token
+#   until: registration_token.stdout != ""
+#   retries: 5
+#   delay: 10
+#   changed_when: false
+
+# - set_fact:
+#     registration_token: "{{ registration_token.stdout }}"
+
+- name: "deleting current runner token"
+  connection: local # we need python-gitlab to be present
+  become: false
+  community.general.gitlab_runner:
+    api_url: "https://{{ gitlab.host }}"
+    api_username: "{{ gitlab.root_user }}"
+    api_password: "{{ gitlab.root_password }}"
+    description: "{{ docker_service_gitlab_runner_name }}"
+    state: absent
+
+- name: "create gitlab runner token"
+  connection: local # we need python-gitlab to be present
+  become: false
+  community.general.gitlab_runner:
+    api_url: "https://{{ gitlab.host }}"
+    api_username: "{{ gitlab.root_user }}"
+    api_password: "{{ gitlab.root_password }}"
+    description: "{{ docker_service_gitlab_runner_name }}"
+    state: present
+    active: true
+    #tag_list: ['docker']
+    #run_untagged: false
+    run_untagged: true
+    locked: false
+  register: result
+
+- set_fact:
+    registration_token: "{{ result.runner.token }}"
+
+- name: ensure /var/lib/docker-compose/gitlab-runner dir exists
+  file:
+    path: "/var/lib/docker-compose/gitlab-runner"
+    state: directory
+    owner: root
+    group: root
+
+- name: installing docker compose file
+  ansible.builtin.template:
+    src: templates/docker-compose.yml
+    dest: /var/lib/docker-compose/gitlab-runner/docker-compose.yml
+    owner: root
+    group: root
+    mode: "0600"
+    backup: true
+
+- name: stopping service (if it is running)
+  shell: |
+    cd /var/lib/docker-compose/gitlab-runner
+    docker compose stop || true
+  args:
+    executable: /bin/bash
+
+- name: pull latest image
+  shell: |
+    cd /var/lib/docker-compose/gitlab-runner
+    docker compose pull
+  args:
+    executable: /bin/bash
+
+- name: ensure /var/lib/docker-compose/gitlab-runner/config dir is removed
+  file:
+    path: "/var/lib/docker-compose/gitlab-runner/config"
+    state: absent
+  when: docker_service_gitlab_runner_delete_config_dir
+
+- name: create /var/lib/docker-compose/gitlab-runner/config dir
+  file:
+    path: "/var/lib/docker-compose/gitlab-runner/config"
+    state: directory
+    owner: root
+    group: root
+
+- name: set runner concurrency
+  ansible.builtin.template:
+    src: templates/config.toml.j2
+    dest: /var/lib/docker-compose/gitlab-runner/config/config.toml
+    owner: root
+    group: root
+    mode: "0600"
+  when: docker_service_gitlab_runner_concurrency | default (false)
+
+- name: start gitlab runner
+  shell: |
+    cd /var/lib/docker-compose/gitlab-runner
+    docker compose up -d
+  args:
+    executable: /bin/bash

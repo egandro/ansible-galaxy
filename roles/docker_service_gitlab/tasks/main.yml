@@ -1,0 +1,106 @@
+---
+
+- name: install curl
+  ansible.builtin.package:
+    name: curl
+    state: present
+
+- name: install jq
+  ansible.builtin.package:
+    name: jq
+    state: present
+
+- name: ensure /var/lib/docker-compose/gitlab dir exists
+  file:
+    path: "/var/lib/docker-compose/gitlab"
+    state: directory
+    owner: root
+    group: root
+
+- name: installing docker compose file
+  ansible.builtin.template:
+    src:  templates/docker-compose.yml
+    dest: /var/lib/docker-compose/gitlab/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0600'
+    backup: true
+
+- name: installing backup.sh
+  ansible.builtin.template:
+    src:  templates/backup.sh
+    dest: /var/lib/docker-compose/gitlab/backup.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: installing restore.sh
+  ansible.builtin.template:
+    src:  templates/restore.sh
+    dest: /var/lib/docker-compose/gitlab/restore.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: installing create_api_token.sh
+  ansible.builtin.template:
+    src:  templates/create_api_token.sh
+    dest: /var/lib/docker-compose/gitlab/create_api_token.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: installing create_registration_token.sh
+  ansible.builtin.template:
+    src:  templates/create_registration_token.sh
+    dest: /var/lib/docker-compose/gitlab/create_registration_token.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: stopping service (if it is running)
+  shell: |
+    cd /var/lib/docker-compose/gitlab
+    docker compose stop || true
+  args:
+    executable: /bin/bash
+
+- name: pull latest image
+  shell: |
+    cd /var/lib/docker-compose/gitlab
+    docker compose pull
+  args:
+    executable: /bin/bash
+
+- name: start gitlab
+  shell: |
+    cd /var/lib/docker-compose/gitlab
+    docker compose up -d
+  args:
+    executable: /bin/bash
+
+- name: gitlab url
+  ansible.builtin.debug:
+    msg: |
+      "gitlab url: https://{{ docker_service_gitlab_host }}"
+
+- name: wait for gitlab to be ready
+  command: "curl --silent https://{{ docker_service_gitlab_host }}/users/sign_in"
+  register: result
+  until: result.stdout.find("/users/sign_in") != -1
+  retries: "{{ docker_service_gitlab_ready_counter }}"
+  delay: 10
+  changed_when: false
+
+# the curl hack is stable - it looks like we don' get 502 via UI
+
+# - name: wait for gitlab to be ready
+#   uri:
+#     url: "https://{{ docker_service_gitlab_host }}/users/sign_in"
+#     return_content: no
+#     status_code: 200
+#   register: website_check
+#   until: website_check.status != 502
+#   retries: "{{ docker_service_gitlab_ready_counter }}"
+#   delay: 10
+#   changed_when: false
