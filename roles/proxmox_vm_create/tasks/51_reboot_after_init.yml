@@ -21,10 +21,10 @@
     executable: /bin/bash
 
 - name: ip proxmox_vm_ip4 was provided - wait for ssh to become available again
-  connection: local
-  become: false
+  #connection: local
+  #become: false
   ansible.builtin.wait_for:
     host: "{{ proxmox_vm_ip4 }}"
     port: 22
     delay: 10
-  when: (proxmox_vm_ip4 | default("")) and (proxmox_vm_ip4|length > 0)
+  when: proxmox_vm_ip4 is defined and proxmox_vm_ip4 | length > 0
