@@ -110,4 +110,4 @@
     qm start {{ proxmox_vm_vmid }}
   args:
     executable: /bin/bash
-  when: proxmox_vm_start_after_creation
+  when: proxmox_vm_start_after_creation is defined and proxmox_vm_start_after_creation
