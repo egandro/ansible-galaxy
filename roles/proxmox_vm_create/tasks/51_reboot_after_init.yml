@@ -27,4 +27,4 @@
     host: "{{ proxmox_vm_ip4 }}"
     port: 22
     delay: 10
-  when: proxmox_vm_ip4 | default(false)
+  when: (proxmox_vm_ip4 | default("")) and (proxmox_vm_ip4|length > 0)
