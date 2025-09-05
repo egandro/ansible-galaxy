@@ -4,5 +4,6 @@
   ansible.builtin.systemd:
     name: systemd-networkd.service
     enabled: false
-    state: stopped
+    #chicken egg issue - we should not stop this
+    #state: stopped
   ignore_errors: true
