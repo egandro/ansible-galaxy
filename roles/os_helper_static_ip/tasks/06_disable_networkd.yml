@@ -1,6 +1,6 @@
 ---
 
-- name: Stop and disable systemd-networkd service
+- name: Disable systemd-networkd service
   ansible.builtin.systemd:
     name: systemd-networkd.service
     enabled: false
