@@ -29,28 +29,28 @@
     pct set {{ proxmox_lxc_vmid }} --cores {{ proxmox_lxc_cores }}
   args:
     executable: /bin/bash
-  when: proxmox_lxc_cores | default(false)
+  when: (proxmox_lxc_cores is defined) and (proxmox_lxc_cores)
 
 - name: set memory
   shell: |
     pct set {{ proxmox_lxc_vmid }} --memory {{ proxmox_lxc_memory }}
   args:
     executable: /bin/bash
-  when: proxmox_lxc_memory | default(false)
+  when: proxmox_lxc_memory is defined
 
 - name: set swap
   shell: |
     pct set {{ proxmox_lxc_vmid }} --swap {{ proxmox_lxc_swap_size }}
   args:
     executable: /bin/bash
-  when: proxmox_lxc_swap_size | default(false)
+  when: (proxmox_lxc_swap_size is defined) and (proxmox_lxc_swap_size>0)
 
 - name: set onboot
   shell: |
     pct set {{ proxmox_lxc_vmid }} --onboot {{ proxmox_lxc_onboot }}
   args:
     executable: /bin/bash
-  when: proxmox_lxc_onboot | default(false)
+  when: (proxmox_lxc_onboot is defined) and (proxmox_lxc_onboot)
 
 - name: mount points
   shell: |
@@ -58,7 +58,7 @@
   args:
     executable: /bin/bash
   with_items: "{{ proxmox_lxc_mp }}"
-  when: proxmox_lxc_mp | default([])
+  when: (proxmox_lxc_mp is defined) and (proxmox_lxc_mp | length >0)
 
 - name: networks
   shell: |
@@ -66,21 +66,21 @@
   args:
     executable: /bin/bash
   with_items: "{{ proxmox_lxc_net }}"
-  when: proxmox_lxc_net | default([])
+  when: (proxmox_lxc_net is defined) and (proxmox_lxc_net | length >0)
 
 - name: tags
   shell: |
     pct set {{ proxmox_lxc_vmid }} --tags "{{ proxmox_lxc_tags }}"
   args:
     executable: /bin/bash
-  when: proxmox_lxc_tags | default(false)
+  when: proxmox_lxc_tags is defined
 
 - name: description
   shell: |
     pct set {{ proxmox_lxc_vmid }} --description '{{ proxmox_lxc_description }}'
   args:
     executable: /bin/bash
-  when: proxmox_lxc_description | default(false)
+  when: proxmox_lxc_description is defined
 
 
 # pitfall - a lxc might not start if a local mount point does not exists
@@ -90,4 +90,4 @@
     pct start {{ proxmox_lxc_vmid }}
   args:
     executable: /bin/bash
-  when: proxmox_lxc_start_after_creation | default(false)
+  when: (proxmox_lxc_start_after_creation is defined) and proxmox_lxc_start_after_creation
