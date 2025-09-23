@@ -20,12 +20,12 @@ fi
 TMPFILE="$(mktemp)"
 trap 'rm -rf -- "$TMPFILE"' EXIT
 
-find "${CURRENT_CERTS_DIR}" \
-        -name "cert.pem" \
-        -exec sh -c 'openssl x509 -noout -subject -in $0 | sed -s "s|.*= ||" | sed -z "s|\n|, |g"  && echo "$0" ' {} \; >"${TMPFILE}"
+find "${CURRENT_CERTS_DIR}" -name "cert.pem" \
+          -exec sh -c 'openssl x509 -noout -subject -in "$0" | sed -e "s|.*CN *= *||" | sed -z "s|\n|, |g" && echo "$0"' {} \; >"${TMPFILE}"
 
+REGEX_DOMAIN=$(echo "$DOMAIN" | sed 's/\*/\\*/g' | sed 's/\./\\./g')
 
-MATCH=$(cat "${TMPFILE}" | grep -e "^${DOMAIN}," | head -n1)
+MATCH=$(cat "${TMPFILE}" | grep -E "^${REGEX_DOMAIN}," | head -n1)
 
 if [ -z "${MATCH}" ]; then
   echo "Error: domain ${DOMAIN} not found."
