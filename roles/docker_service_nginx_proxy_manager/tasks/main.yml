@@ -69,5 +69,5 @@
 
 - name: nginx-proxy-manager web website (relaxed security)
   ansible.builtin.debug:
-    msg: "nginx-proxy-manager web is available at: http://{{ ansible_host }}:81 (default credentials: admin@example.com/changeme)"
+    msg: "nginx-proxy-manager web is available at: http://{{ ansible_host }}:81"
   when: docker_service_nginx_proxy_manager_bind_addr is not defined or docker_service_nginx_proxy_manager_bind_addr is none
