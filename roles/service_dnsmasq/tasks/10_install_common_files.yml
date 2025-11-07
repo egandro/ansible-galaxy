@@ -15,7 +15,7 @@
       dhcp-host={{ item }}
       {% endfor %}
     marker: "# {mark} ansible section - pinned ips"
-  when: service_dnsmasq_pinned_ips is defined and service_dnsmasq_pinned_ips
+  when: ((service_dnsmasq_pinned_ips | default([])) or []) | length > 0
 
 - name: ensure /etc/dnsmasq.d/cnames.conf exists
   ansible.builtin.file:
@@ -33,4 +33,4 @@
       cname={{ item }}
       {% endfor %}
     marker: "# {mark} ansible section - cnames"
-  when: service_dnsmasq_c_names is defined and service_dnsmasq_c_names
+  when: ((service_dnsmasq_c_names | default([])) or []) | length > 0
