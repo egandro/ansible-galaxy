@@ -26,6 +26,14 @@ services:
       # Uncomment this if IPv6 is not enabled on your host
       # DISABLE_IPV6: 'true'
 
+    # This section allows the container to bind to privileged ports (80/443)
+    cap_add:
+      - NET_BIND_SERVICE
+
+    security_opt:
+      - label:disable  # Disables SELinux for the container (if on Fedora/CentOS)
+      - apparmor:unconfined # Disables AppArmor for the container (if on Ubuntu/Debian
+
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
